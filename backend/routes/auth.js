@@ -13,17 +13,11 @@ const path = require('path');
 const { body, validationResult } = require('express-validator');
 const User = require('../models/User');
 const { protect } = require('../middleware/auth');
+const { uploadBuffer } = require('../utils/gridfs');
 
-/* ---- Multer pour CV PDF ---- */
-const cvStorage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, path.join(__dirname, '../uploads/cvs')),
-  filename: (req, file, cb) => {
-    const safe = (req.body.nom || 'cv').replace(/\s+/g,'_').replace(/[^a-zA-Z0-9_]/g,'');
-    cb(null, Date.now() + '_' + safe + '.pdf');
-  }
-});
+/* ---- Multer pour CV PDF — stockage en mémoire puis GridFS (persiste sur Render) ---- */
 const uploadCV = multer({
-  storage: cvStorage,
+  storage: multer.memoryStorage(),
   fileFilter: (req, file, cb) => cb(null, file.mimetype === 'application/pdf' || path.extname(file.originalname).toLowerCase() === '.pdf'),
   limits: { fileSize: 5 * 1024 * 1024 }  // 5 MB max
 });
@@ -73,7 +67,11 @@ router.post(
       const userData = { nom, prenom, email, telephone, password };
       if (role && ['etudiant','artiste','formateur'].includes(role)) userData.role = role;
       if (discipline) userData.discipline = discipline;
-      if (req.file) userData.cvPath = '/uploads/cvs/' + req.file.filename;
+      if (req.file) {
+        const safe = (nom || 'cv').replace(/\s+/g,'_').replace(/[^a-zA-Z0-9_]/g,'');
+        const cvId = await uploadBuffer(req.file.buffer, Date.now() + '_' + safe + '.pdf', 'application/pdf');
+        userData.cvPath = '/api/files/' + cvId;
+      }
       const user = await User.create(userData);
 
       const token = generateToken(user._id);

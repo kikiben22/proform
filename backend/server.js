@@ -59,6 +59,7 @@ app.use('/api/videos',     videosRoutes);
 app.use('/api/instituts',  institutsRoutes);
 app.use('/api/news',       newsRoutes);
 app.use('/api/siteconfig', siteConfigRoutes);
+app.use('/api/files',      require('./routes/files'));
 
 // Serve uploaded videos and thumbnails
 app.use('/uploads/videos',     require('express').static(require('path').join(__dirname, 'uploads/videos')));

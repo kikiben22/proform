@@ -10,22 +10,8 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const path = require('path');
-const fs = require('fs');
 const Video = require('../models/Video');
-
-/* ---- Stockage vidéo ---- */
-const videoStorage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const dir = file.fieldname === 'video'
-      ? path.join(__dirname, '../uploads/videos')
-      : path.join(__dirname, '../uploads/thumbnails');
-    cb(null, dir);
-  },
-  filename: (req, file, cb) => {
-    const unique = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    cb(null, unique + path.extname(file.originalname));
-  }
-});
+const { uploadBuffer, deleteFileByPath } = require('../utils/gridfs');
 
 const fileFilter = (req, file, cb) => {
   if (file.fieldname === 'video') {
@@ -37,10 +23,12 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
+/* ---- Stockage en mémoire — les fichiers sont ensuite écrits dans MongoDB GridFS
+   (persiste après redéploiement, contrairement au disque Render gratuit) ---- */
 const upload = multer({
-  storage: videoStorage,
+  storage: multer.memoryStorage(),
   fileFilter,
-  limits: { fileSize: 2 * 1024 * 1024 * 1024 } // 2 GB max
+  limits: { fileSize: 50 * 1024 * 1024 } // 50 MB max (quota MongoDB Atlas gratuit = 512 Mo)
 });
 
 /* ====================================================
@@ -61,6 +49,16 @@ router.post('/upload', upload.fields([
       return res.status(400).json({ message: 'Titre, discipline et catégorie sont obligatoires.' });
     }
 
+    const videoFile = req.files.video[0];
+    const videoId = await uploadBuffer(videoFile.buffer, videoFile.originalname, videoFile.mimetype);
+
+    let thumbnailPath = '';
+    if (req.files.thumbnail) {
+      const thumbFile = req.files.thumbnail[0];
+      const thumbId = await uploadBuffer(thumbFile.buffer, thumbFile.originalname, thumbFile.mimetype);
+      thumbnailPath = '/api/files/' + thumbId;
+    }
+
     const video = await Video.create({
       titre,
       description: description || '',
@@ -68,10 +66,8 @@ router.post('/upload', upload.fields([
       categorie,
       formateur: formateur || '',
       duree: duree || '',
-      videoPath: '/uploads/videos/' + req.files.video[0].filename,
-      thumbnailPath: req.files.thumbnail
-        ? '/uploads/thumbnails/' + req.files.thumbnail[0].filename
-        : ''
+      videoPath: '/api/files/' + videoId,
+      thumbnailPath
     });
 
     res.status(201).json({
@@ -126,11 +122,9 @@ router.delete('/:id', async (req, res) => {
     const video = await Video.findById(req.params.id);
     if (!video) return res.status(404).json({ message: 'Vidéo introuvable.' });
 
-    // Supprimer les fichiers
-    const videoFile = path.join(__dirname, '..', video.videoPath);
-    const thumbFile = video.thumbnailPath ? path.join(__dirname, '..', video.thumbnailPath) : null;
-    if (fs.existsSync(videoFile)) fs.unlinkSync(videoFile);
-    if (thumbFile && fs.existsSync(thumbFile)) fs.unlinkSync(thumbFile);
+    // Supprimer les fichiers GridFS
+    await deleteFileByPath(video.videoPath);
+    await deleteFileByPath(video.thumbnailPath);
 
     await video.deleteOne();
     res.json({ message: 'Vidéo supprimée.' });
