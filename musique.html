@@ -370,7 +370,7 @@
   }
   function showModules(card){const panel=document.getElementById('modulesPanel');document.getElementById('panelIcon').textContent=card.dataset.icon||'🎵';document.getElementById('panelTitle').textContent=card.dataset.title;document.getElementById('panelMeta').textContent=card.dataset.meta;const modules=JSON.parse(card.dataset.modules||'[]');document.getElementById('panelModules').innerHTML=modules.map((m,i)=>`<div class="module-item"><div class="module-num">${i+1}</div><span>${m}</span></div>`).join('');panel.classList.add('show');panel.scrollIntoView({behavior:'smooth',block:'start'});}
   function closePanel(){document.getElementById('modulesPanel').classList.remove('show');}
-  const API='http://localhost:5000';
+  const API='https://proform-backend.onrender.com';
   async function openVideoModal(card){
     document.getElementById('modalTitle').textContent=card.dataset.title||'Cours ProForm';
     document.getElementById('modalRating').textContent=card.dataset.rating||'⭐ —';
@@ -416,7 +416,7 @@
   document.getElementById('courseSearch').addEventListener('keypress',e=>{if(e.key==='Enter')filterCourses();});
 
   const SUBCATS_MUS={guitare:'🎸 Guitare',piano:'🎹 Piano',chant:'🎤 Chant',production:'🎛️ Production',composition:'🎼 Composition'};
-  const API_MUS='http://localhost:5000';
+  const API_MUS='https://proform-backend.onrender.com';
 
   async function loadCoursesFromDB(){
     try{

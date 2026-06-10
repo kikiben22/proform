@@ -207,7 +207,7 @@
 
 <script src="app.js"></script>
 <script>
-const API = 'http://localhost:5000/api';
+const API = 'https://proform-backend.onrender.com/api';
 
 const categories = {
   scene:         ['performance','ecriture','scenographie','mise-en-scene','improvisation'],
@@ -376,8 +376,8 @@ async function loadVideos() {
       <div class="video-item" id="vi-${v._id}">
         <div class="video-item-thumb">
           ${v.thumbnailPath
-            ? `<img src="http://localhost:5000${v.thumbnailPath}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" onerror="this.parentNode.innerHTML='🎬'"/>`
-            : `<video src="http://localhost:5000${v.videoPath}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" muted></video>`}
+            ? `<img src="https://proform-backend.onrender.com${v.thumbnailPath}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" onerror="this.parentNode.innerHTML='🎬'"/>`
+            : `<video src="https://proform-backend.onrender.com${v.videoPath}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" muted></video>`}
         </div>
         <div class="video-item-info">
           <strong>${v.titre}</strong>

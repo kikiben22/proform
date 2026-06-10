@@ -646,7 +646,7 @@ function applySiteConfig(cfg) {
 
 async function loadSiteConfigPublic() {
   try {
-    const r = await fetch('http://localhost:5000/api/siteconfig');
+    const r = await fetch('https://proform-backend.onrender.com/api/siteconfig');
     if (r.ok) { applySiteConfig(await r.json()); return; }
   } catch {}
   try { applySiteConfig(JSON.parse(localStorage.getItem('proform_siteconfig') || '{}')); } catch {}

@@ -2,7 +2,7 @@
    ProForm — Injection de contenu + Auth Gate
    ============================================ */
 
-const API_URL = 'http://localhost:5000';
+const API_URL = 'https://proform-backend.onrender.com';
 
 /* ── Fetch avec timeout manuel (supporte GET et POST) ── */
 async function fetchWithTimeout(url, ms, options) {

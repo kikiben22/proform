@@ -473,7 +473,7 @@
     panel.scrollIntoView({ behavior:'smooth', block:'start' });
   }
   function closePanel() { document.getElementById('modulesPanel').classList.remove('show'); }
-  const API = 'http://localhost:5000';
+  const API = 'https://proform-backend.onrender.com';
   async function openVideoModal(card) {
     document.getElementById('modalTitle').textContent = card.dataset.title || 'Cours ProForm';
     document.getElementById('modalRating').textContent = card.dataset.rating || '⭐ —';

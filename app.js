@@ -4,7 +4,7 @@
    ============================================ */
 
 // API Base URL — change this to your deployed server URL in production
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE = 'https://proform-backend.onrender.com/api';
 
 /* ======== TOAST NOTIFICATIONS ======== */
 function showToast(msg, type = 'success') {

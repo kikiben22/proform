@@ -673,7 +673,7 @@
 
 <script src="store.js"></script>
 <script>
-const API = 'http://localhost:5000';
+const API = 'https://proform-backend.onrender.com';
 let TOKEN = localStorage.getItem('proform_admin_token') || '';
 
 /* ══════ LOGIN ══════ */
@@ -918,7 +918,7 @@ async function renderVidsTable(wrap, vids) {
     </tr>`;
   }));
 
-  wrap.innerHTML = `<table><thead><tr><th>Titre</th><th>Discipline</th><th>Catégorie</th><th>Formateur</th><th>Durée</th><th>Vues</th><th>Actions</th></tr></thead><tbody>${rows.join('')}</tbody></table>`;
+  wrap.innerHTML = `<div style="overflow-x:auto"><table><thead><tr><th>Titre</th><th>Discipline</th><th>Catégorie</th><th>Formateur</th><th>Durée</th><th>Vues</th><th>Actions</th></tr></thead><tbody>${rows.join('')}</tbody></table></div>`;
 }
 
 async function syncLocalVid(id) {
@@ -1012,7 +1012,7 @@ function renderCoursesTable(wrap, courses, offline=false) {
     wrap.innerHTML=`<div class="empty"><span>📚</span>${offline?'Serveur hors ligne — ':''}Aucun programme. Cliquez sur "+ Nouveau programme".</div>`;
     return;
   }
-  wrap.innerHTML = `<table><thead><tr><th>Titre</th><th>Discipline</th><th>Sous-catégorie</th><th>Durée</th><th>Niveau</th><th>Formateur</th><th>Actions</th></tr></thead><tbody>
+  wrap.innerHTML = `<div style="overflow-x:auto"><table><thead><tr><th>Titre</th><th>Discipline</th><th>Sous-catégorie</th><th>Durée</th><th>Niveau</th><th>Formateur</th><th>Actions</th></tr></thead><tbody>
     ${courses.map(c=>`<tr>
       <td><strong>${c.titre}</strong>${c._local?'<span style="font-size:.65rem;color:var(--gold);margin-left:6px">● local</span>':''}</td>
       <td><span class="badge bg-gold">${c.categorie}</span></td>
@@ -1025,7 +1025,7 @@ function renderCoursesTable(wrap, courses, offline=false) {
         <button class="btn-act btn-del"  onclick="delCourse('${c._id}','${c._local||false}')">🗑️ Supprimer</button>
       </div></td>
     </tr>`).join('')}
-  </tbody></table>`;
+  </tbody></table></div>`;
 }
 
 function editCourse(c) {
@@ -1150,7 +1150,7 @@ function renderInstsTable(wrap, insts, offline=false) {
     wrap.innerHTML=`<div class="empty"><span>🏛️</span>${offline?'Serveur hors ligne — ':''}Aucun institut. Cliquez sur "+ Nouvel institut".</div>`;
     return;
   }
-  wrap.innerHTML = `<table><thead><tr><th>Icône</th><th>Nom</th><th>Localisation</th><th>Contact</th><th>Discipline</th><th>Type</th><th>Actions</th></tr></thead><tbody>
+  wrap.innerHTML = `<div style="overflow-x:auto"><table><thead><tr><th>Icône</th><th>Nom</th><th>Localisation</th><th>Contact</th><th>Discipline</th><th>Type</th><th>Actions</th></tr></thead><tbody>
     ${insts.map(i=>`<tr>
       <td style="font-size:1.4rem;text-align:center">${i.icone||'🏛️'}</td>
       <td><strong>${i.nom}</strong>${i._local?'<span style="font-size:.65rem;color:var(--gold);margin-left:6px">● local</span>':''}${i.specialites?`<br><span style="font-size:.72rem;color:var(--gray)">${i.specialites}</span>`:''}</td>
@@ -1163,7 +1163,7 @@ function renderInstsTable(wrap, insts, offline=false) {
         <button class="btn-act btn-del"  onclick="delInst('${i._id}','${i._local||false}')">🗑️ Supprimer</button>
       </div></td>
     </tr>`).join('')}
-  </tbody></table>`;
+  </tbody></table></div>`;
 }
 
 function editInst(i) {
@@ -1262,7 +1262,7 @@ function renderUsersTable(wrap, users, offline=false) {
     return;
   }
   const roleBadge = r => ({ admin:'bg-red', formateur:'bg-blue', artiste:'bg-purple', etudiant:'bg-green' }[r]||'bg-gray');
-  wrap.innerHTML = `<table><thead><tr><th>Prénom & Nom</th><th>Email</th><th>Téléphone</th><th>Discipline</th><th>Rôle</th><th>CV</th><th>Statut</th><th>Inscrit le</th><th>Actions</th></tr></thead><tbody>
+  wrap.innerHTML = `<div style="overflow-x:auto"><table><thead><tr><th>Prénom & Nom</th><th>Email</th><th>Téléphone</th><th>Discipline</th><th>Rôle</th><th>CV</th><th>Statut</th><th>Inscrit le</th><th>Actions</th></tr></thead><tbody>
     ${users.map(u=>`<tr>
       <td><strong>${u.prenom||''} ${u.nom||''}</strong>${u._local?'<span style="font-size:.65rem;color:var(--gold);margin-left:6px">● local</span>':''}</td>
       <td>${u.email||'—'}</td>
@@ -1284,7 +1284,7 @@ function renderUsersTable(wrap, users, offline=false) {
         <button class="btn-act btn-del"  onclick="delUser('${u._id}','${u.prenom||''} ${u.nom||''}','${u._local||false}')">🗑️ Supprimer</button>
       </div></td>
     </tr>`).join('')}
-  </tbody></table>`;
+  </tbody></table></div>`;
 }
 
 function openRoleModal(id, nom, role) {
@@ -1487,7 +1487,7 @@ async function loadNews() {
     wrap.innerHTML = '<div class="empty"><span>📰</span>Aucune actualité. Utilisez le formulaire ci-dessus.</div>';
     return;
   }
-  wrap.innerHTML = `<table><thead><tr><th>Titre</th><th>Type</th><th>Discipline</th><th>Contact</th><th>Date</th><th>Actions</th></tr></thead><tbody>
+  wrap.innerHTML = `<div style="overflow-x:auto"><table><thead><tr><th>Titre</th><th>Type</th><th>Discipline</th><th>Contact</th><th>Date</th><th>Actions</th></tr></thead><tbody>
     ${news.map(n=>`<tr>
       <td><strong>${n.titre}</strong>${n._local?'<span style="font-size:.65rem;color:var(--gold);margin-left:6px">● local</span>':''}${n.image?'<span style="font-size:.65rem;color:var(--gold);margin-left:4px">🖼️</span>':''}</td>
       <td><span class="badge bg-gold">${n.type||'Article'}</span></td>
@@ -1499,7 +1499,7 @@ async function loadNews() {
         <button class="btn-act btn-del"  onclick="delNews('${n._id}','${n._local||false}')">🗑️ Supprimer</button>
       </div></td>
     </tr>`).join('')}
-  </tbody></table>`;
+  </tbody></table></div>`;
 }
 
 async function saveNews() {

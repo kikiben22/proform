@@ -679,7 +679,7 @@
     const titleEl= document.getElementById('modalTitle');
     if (!modal) return;
     if (titleEl) titleEl.textContent = titre || 'Vidéo ProForm';
-    if (src && src !== 'http://localhost:5000undefined') {
+    if (src && src !== 'https://proform-backend.onrender.comundefined') {
       player.src = src; player.style.display = 'block'; noSrc.style.display = 'none'; player.load();
     } else {
       player.style.display = 'none'; noSrc.style.display = 'flex';
@@ -712,7 +712,7 @@
   }
 
   /* -- Video Modal -- */
-  const API = 'http://localhost:5000';
+  const API = 'https://proform-backend.onrender.com';
 
   async function openVideoModal(card) {
     document.getElementById('modalTitle').textContent = card.dataset.title || 'Cours ProForm';
