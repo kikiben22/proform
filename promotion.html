@@ -1,0 +1,593 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ProForm — Promotion Artiste</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .promo-hero {
+      padding: 100px 0 60px;
+      text-align: center;
+      position: relative;
+    }
+
+    .promo-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 50% 0%, rgba(201,168,76,0.12) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .promo-hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 3.5rem;
+      font-weight: 900;
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    .promo-hero p {
+      font-size: 1.1rem;
+      color: var(--gray);
+      max-width: 600px;
+      margin: 0 auto;
+      line-height: 1.8;
+      position: relative;
+    }
+
+    .promo-layout {
+      display: grid;
+      grid-template-columns: 1fr 1.6fr;
+      gap: 60px;
+      align-items: start;
+      padding: 60px 0 80px;
+    }
+
+    /* Left: Info */
+    .promo-info {
+      position: sticky;
+      top: 90px;
+    }
+
+    .promo-info h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+
+    .promo-info p {
+      color: var(--gray);
+      line-height: 1.8;
+      font-size: 0.95rem;
+      margin-bottom: 30px;
+    }
+
+    .promo-benefits {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 30px;
+    }
+
+    .benefit-item {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+    }
+
+    .benefit-num {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: var(--gradient);
+      color: var(--black);
+      font-weight: 700;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .benefit-text strong {
+      display: block;
+      font-size: 0.95rem;
+      margin-bottom: 4px;
+    }
+
+    .benefit-text span {
+      font-size: 0.82rem;
+      color: var(--gray);
+      line-height: 1.6;
+    }
+
+    /* Right: Form */
+    .promo-form-card {
+      background: var(--dark-card);
+      border: 1px solid var(--dark-border);
+      border-radius: 20px;
+      padding: 44px;
+    }
+
+    .promo-form-card h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .promo-form-card .sub {
+      font-size: 0.85rem;
+      color: var(--gray);
+      margin-bottom: 30px;
+    }
+
+    .step-indicator {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      margin-bottom: 32px;
+    }
+
+    .step {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .step-circle {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--dark-border);
+      color: var(--gray);
+      font-size: 0.8rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    .step.active .step-circle {
+      background: var(--gradient);
+      color: var(--black);
+    }
+
+    .step.done .step-circle {
+      background: var(--success);
+      color: var(--white);
+    }
+
+    .step-label {
+      font-size: 0.75rem;
+      color: var(--gray);
+      font-weight: 500;
+    }
+
+    .step.active .step-label { color: var(--gold); }
+
+    .step-line {
+      flex: 1;
+      height: 2px;
+      background: var(--dark-border);
+      margin: 0 12px;
+    }
+
+    .success-screen {
+      text-align: center;
+      padding: 40px 0;
+      display: none;
+    }
+
+    .success-icon {
+      font-size: 4rem;
+      margin-bottom: 20px;
+      animation: pulse-gold 2s infinite;
+    }
+
+    @media (max-width: 900px) {
+      .promo-layout { grid-template-columns: 1fr; }
+      .promo-info { position: static; }
+      .promo-hero h1 { font-size: 2.4rem; }
+      .promo-form-card { padding: 28px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <a href="index.html" class="nav-logo"><svg width="26" height="26" viewBox="0 0 26 26" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0"><polygon points="13,1.5 23.1,7.5 23.1,18.5 13,24.5 2.9,18.5 2.9,7.5" fill="rgba(201,168,76,0.12)" stroke="#C9A84C" stroke-width="1.5"/><text x="13" y="17.5" text-anchor="middle" font-size="9.5" font-weight="900" fill="#C9A84C" font-family="Georgia,serif">PF</text></svg> PRO<span>FORM</span></a>
+  <ul class="nav-menu">
+    <li>
+      <button>Explorer <span class="arrow">▾</span></button>
+      <div class="dropdown">
+        <a href="scene.html"><span class="icon">🎭</span> Scène & Théâtre</a>
+        <a href="cinema.html"><span class="icon">🎬</span> Cinéma</a>
+        <a href="art-plastique.html"><span class="icon">🎨</span> Art Plastique</a>
+        <a href="musique.html"><span class="icon">🎵</span> Musique</a>
+      </div>
+    </li>
+    <li>
+      <button>Menu <span class="arrow">▾</span></button>
+      <div class="dropdown">
+        <a href="promotion.html"><span class="icon">⭐</span> Promotion</a>
+        <div style="padding:6px 18px 4px;font-size:.68rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--gold);font-weight:700;border-top:1px solid var(--dark-border);margin-top:4px">Formations</div>
+        <a href="sceneformation.html"><span class="icon">🎭</span> Scène &amp; Théâtre</a>
+        <a href="cinemaformation.html"><span class="icon">🎬</span> Cinéma</a>
+        <a href="art-plastiqueformation.html"><span class="icon">🎨</span> Art Plastique</a>
+        <a href="musiqueformation.html"><span class="icon">🎵</span> Musique</a>
+        <a href="actualites.html"><span class="icon">📰</span> Actualités</a>
+        <a href="index.html#siteFooter"><span class="icon">📞</span> Contact</a>
+      </div>
+    </li>
+    <li>
+      <button class="btn btn-gold" style="padding:8px 18px;font-size:0.8rem;">Connexion <span class="arrow">▾</span></button>
+      <div class="dropdown" style="right:0;left:auto;min-width:200px;">
+        <a href="index.html"><span class="icon">👤</span> S'inscrire / Se connecter</a>
+      </div>
+    </li>
+  </ul>
+</nav>
+
+<div class="page-wrapper">
+
+  <!-- HERO -->
+  <section class="promo-hero">
+    <div class="container">
+      <div class="section-badge">⭐ Programme de Promotion</div>
+      <h1>Faites rayonner<br><span class="text-gold">votre talent</span></h1>
+      <p>
+        Rejoignez notre réseau d'artistes promus et bénéficiez
+        d'une visibilité exceptionnelle auprès des institutions culturelles
+        et du grand public.
+      </p>
+    </div>
+  </section>
+
+  <div class="container">
+    <div class="promo-layout">
+
+      <!-- LEFT INFO -->
+      <div class="promo-info">
+        <div class="section-badge">🎯 Ce que vous obtenez</div>
+        <h2>Promotion <span class="text-gold">360°</span></h2>
+        <p>
+          Notre programme de promotion vous offre une visibilité complète
+          sur notre plateforme et dans notre réseau d'institutions partenaires.
+        </p>
+
+        <div class="promo-benefits">
+          <div class="benefit-item">
+            <div class="benefit-num">1</div>
+            <div class="benefit-text">
+              <strong>Profil artiste mis en avant</strong>
+              <span>Votre profil apparaît en tête des recherches et sur la page d'accueil.</span>
+            </div>
+          </div>
+          <div class="benefit-item">
+            <div class="benefit-num">2</div>
+            <div class="benefit-text">
+              <strong>Newsletter ProForm</strong>
+              <span>Votre œuvre présentée à +50 000 abonnés chaque mois.</span>
+            </div>
+          </div>
+          <div class="benefit-item">
+            <div class="benefit-num">3</div>
+            <div class="benefit-text">
+              <strong>Réseaux sociaux officiels</strong>
+              <span>Posts dédiés sur nos pages (Instagram, Facebook, TikTok).</span>
+            </div>
+          </div>
+          <div class="benefit-item">
+            <div class="benefit-num">4</div>
+            <div class="benefit-text">
+              <strong>Connexion avec les institutions</strong>
+              <span>Mise en relation directe avec les musées, théâtres et galeries.</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.2);border-radius:12px;padding:20px;">
+          <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--gold);margin-bottom:8px;">
+            Délai de traitement
+          </div>
+          <div style="font-size:0.9rem;color:var(--gray-light);">
+            Votre candidature sera examinée sous <strong style="color:var(--white);">5 à 7 jours ouvrables</strong>.
+            Vous recevrez une réponse par email.
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT FORM -->
+      <div class="promo-form-card">
+
+        <!-- Step Indicator -->
+        <div class="step-indicator">
+          <div class="step active" id="step1Indicator">
+            <div class="step-circle">1</div>
+            <span class="step-label">Informations</span>
+          </div>
+          <div class="step-line"></div>
+          <div class="step" id="step2Indicator">
+            <div class="step-circle">2</div>
+            <span class="step-label">Documents</span>
+          </div>
+          <div class="step-line"></div>
+          <div class="step" id="step3Indicator">
+            <div class="step-circle">3</div>
+            <span class="step-label">Confirmation</span>
+          </div>
+        </div>
+
+        <h3>Candidature Promotion</h3>
+        <p class="sub">Remplissez le formulaire pour soumettre votre candidature</p>
+
+        <!-- STEP 1: Info -->
+        <form id="promoForm" onsubmit="return false;">
+          <div id="promoStep1">
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="pNom">Nom *</label>
+                <input type="text" id="pNom" class="form-control" placeholder="Votre nom" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="pPrenom">Prénom *</label>
+                <input type="text" id="pPrenom" class="form-control" placeholder="Votre prénom" required />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="pPhone">Téléphone *</label>
+              <div class="phone-group">
+                <select class="form-control phone-select" id="pPhoneCode">
+                  <option value="+213">🇩🇿 +213</option>
+                  <option value="+1">🇺🇸 +1</option>
+                  <option value="+33">🇫🇷 +33</option>
+                  <option value="+44">🇬🇧 +44</option>
+                  <option value="+212">🇲🇦 +212</option>
+                  <option value="+216">🇹🇳 +216</option>
+                  <option value="+20">🇪🇬 +20</option>
+                  <option value="+966">🇸🇦 +966</option>
+                  <option value="+971">🇦🇪 +971</option>
+                  <option value="+90">🇹🇷 +90</option>
+                  <option value="+34">🇪🇸 +34</option>
+                  <option value="+39">🇮🇹 +39</option>
+                </select>
+                <input type="tel" id="pPhone" class="form-control" placeholder="0550 000 000" required />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="pEmail">Email *</label>
+              <input type="email" id="pEmail" class="form-control" placeholder="vous@exemple.com" required />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="pDiscipline">Discipline artistique *</label>
+              <select id="pDiscipline" class="form-control" required>
+                <option value="" disabled selected>Choisir votre discipline</option>
+                <option>Théâtre / Scène</option>
+                <option>Cinéma / Audiovisuel</option>
+                <option>Art Plastique / Peinture</option>
+                <option>Musique / Composition</option>
+                <option>Danse</option>
+                <option>Littérature / Écriture</option>
+                <option>Photographie</option>
+                <option>Arts numériques</option>
+                <option>Autre</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="pBio">Courte biographie *</label>
+              <textarea
+                id="pBio"
+                class="form-control"
+                rows="3"
+                placeholder="Présentez-vous en quelques lignes..."
+                style="resize:vertical;"
+                required
+              ></textarea>
+            </div>
+
+            <button type="button" class="btn btn-gold btn-full" onclick="goToStep2()">
+              Continuer → Documents
+            </button>
+          </div>
+
+          <!-- STEP 2: Documents -->
+          <div id="promoStep2" style="display:none;">
+
+            <div class="form-group">
+              <label class="form-label">CV / Portfolio (PDF) *</label>
+              <div class="file-upload">
+                <input type="file" id="cvFile" accept=".pdf,.doc,.docx" onchange="handleFileSelect(this, 'cvPreview')" />
+                <div class="file-upload-label" id="cvUploadLabel">
+                  <span class="file-upload-icon">📄</span>
+                  <div class="file-upload-text">
+                    <strong>Cliquer ou glisser votre CV / Portfolio</strong>
+                    <span>PDF, DOC, DOCX — max 10 MB</span>
+                  </div>
+                </div>
+              </div>
+              <div id="cvPreview" style="display:none;margin-top:10px;padding:10px 14px;background:rgba(39,174,96,0.1);border:1px solid rgba(39,174,96,0.3);border-radius:8px;font-size:0.82rem;color:#27AE60;"></div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Exemples de travaux (optionnel)</label>
+              <div class="file-upload">
+                <input type="file" id="workFile" accept="image/*,.pdf" multiple onchange="handleFileSelect(this, 'workPreview')" />
+                <div class="file-upload-label" id="workUploadLabel">
+                  <span class="file-upload-icon">🖼️</span>
+                  <div class="file-upload-text">
+                    <strong>Photos, images ou PDF de vos œuvres</strong>
+                    <span>JPG, PNG, PDF — max 20 MB</span>
+                  </div>
+                </div>
+              </div>
+              <div id="workPreview" style="display:none;margin-top:10px;padding:10px 14px;background:rgba(39,174,96,0.1);border:1px solid rgba(39,174,96,0.3);border-radius:8px;font-size:0.82rem;color:#27AE60;"></div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="pPortfolio">Lien portfolio / site web</label>
+              <input type="url" id="pPortfolio" class="form-control" placeholder="https://monportfolio.com" />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="pSocial">Réseaux sociaux</label>
+              <input type="text" id="pSocial" class="form-control" placeholder="@mon_compte Instagram / Facebook..." />
+            </div>
+
+            <div style="display:flex;gap:10px;">
+              <button type="button" class="btn btn-ghost" onclick="goToStep1()" style="flex:1;">
+                ← Retour
+              </button>
+              <button type="button" class="btn btn-gold" onclick="submitPromo()" style="flex:2;">
+                ✦ Envoyer ma candidature
+              </button>
+            </div>
+          </div>
+
+          <!-- STEP 3: Success -->
+          <div class="success-screen" id="promoSuccess">
+            <div class="success-icon">🎉</div>
+            <h3 style="font-family:'Playfair Display',serif;font-size:1.8rem;margin-bottom:12px;">
+              Candidature envoyée !
+            </h3>
+            <p style="color:var(--gray);font-size:0.95rem;line-height:1.7;margin-bottom:30px;">
+              Merci pour votre candidature au programme Promotion ProForm.
+              Notre équipe examinera votre dossier sous <strong style="color:var(--white);">5 à 7 jours ouvrables</strong>.
+              Un email de confirmation vous a été envoyé.
+            </p>
+            <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+              <a href="formation.html" class="btn btn-gold">Découvrir les formations</a>
+              <a href="index.html" class="btn btn-ghost">Retour à l'accueil</a>
+            </div>
+          </div>
+
+        </form>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-content">
+      <div>
+        <div class="footer-logo">ProForm</div>
+        <p class="footer-desc">
+          La plateforme de référence pour les artistes, étudiants
+          et professionnels de la culture en Algérie et dans le monde arabe.
+        </p>
+        <div class="footer-social">
+          <a href="#" class="social-btn">f</a>
+          <a href="#" class="social-btn">in</a>
+          <a href="#" class="social-btn">📷</a>
+          <a href="#" class="social-btn">▶</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Formations</h4>
+        <ul>
+          <li><a href="scene.html">Scène & Théâtre</a></li>
+          <li><a href="#">Cinéma</a></li>
+          <li><a href="#">Art Plastique</a></li>
+          <li><a href="#">Musique</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Plateforme</h4>
+        <ul>
+          <li><a href="#">À propos</a></li>
+          <li><a href="promotion.html">Promotion</a></li>
+          <li><a href="#">Partenaires</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Légal</h4>
+        <ul>
+          <li><a href="#">CGU</a></li>
+          <li><a href="#">Confidentialité</a></li>
+          <li><a href="#">Cookies</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ProForm.COM — Tous droits réservés</span>
+      <span>Conçu avec passion pour les arts 🎭</span>
+    </div>
+  </div>
+</footer>
+
+<div class="toast" id="toast">
+  <span id="toastIcon"></span>
+  <span id="toastMsg"></span>
+</div>
+
+<script src="app.js"></script>
+<script>
+  function goToStep2() {
+    const nom = document.getElementById('pNom').value.trim();
+    const prenom = document.getElementById('pPrenom').value.trim();
+    const phone = document.getElementById('pPhone').value.trim();
+    const email = document.getElementById('pEmail').value.trim();
+    const disc = document.getElementById('pDiscipline').value;
+    const bio = document.getElementById('pBio').value.trim();
+
+    if (!nom || !prenom || !phone || !email || !disc || !bio) {
+      showToast('Veuillez remplir tous les champs obligatoires.', 'error');
+      return;
+    }
+    if (!email.includes('@')) {
+      showToast('Email invalide.', 'error');
+      return;
+    }
+
+    document.getElementById('promoStep1').style.display = 'none';
+    document.getElementById('promoStep2').style.display = 'block';
+    document.getElementById('step1Indicator').classList.remove('active');
+    document.getElementById('step1Indicator').classList.add('done');
+    document.getElementById('step2Indicator').classList.add('active');
+  }
+
+  function goToStep1() {
+    document.getElementById('promoStep2').style.display = 'none';
+    document.getElementById('promoStep1').style.display = 'block';
+    document.getElementById('step2Indicator').classList.remove('active');
+    document.getElementById('step1Indicator').classList.remove('done');
+    document.getElementById('step1Indicator').classList.add('active');
+  }
+
+  function submitPromo() {
+    document.getElementById('promoStep2').style.display = 'none';
+    document.getElementById('promoSuccess').style.display = 'block';
+    document.getElementById('step2Indicator').classList.remove('active');
+    document.getElementById('step2Indicator').classList.add('done');
+    document.getElementById('step3Indicator').classList.add('active');
+    showToast('Candidature envoyée avec succès !', 'success');
+  }
+
+  function handleFileSelect(input, previewId) {
+    const preview = document.getElementById(previewId);
+    if (input.files && input.files.length > 0) {
+      const names = Array.from(input.files).map(f => f.name).join(', ');
+      preview.style.display = 'block';
+      preview.innerHTML = '✓ Fichier(s) sélectionné(s) : ' + names;
+    }
+  }
+</script>
+</body>
+</html>

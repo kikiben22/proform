@@ -1,0 +1,214 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ProForm — Actualités</title>
+  <link rel="stylesheet" href="styles.css"/>
+  <style>
+    .news-hero{padding:110px 0 60px;text-align:center;position:relative}
+    .news-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(201,168,76,.08) 0%,transparent 60%);pointer-events:none}
+    .news-hero h1{font-family:'Playfair Display',serif;font-size:3.5rem;font-weight:900;margin-bottom:16px;position:relative}
+    .news-hero p{font-size:1rem;color:var(--gray);max-width:600px;margin:0 auto;line-height:1.8;position:relative}
+    .news-filters{display:flex;gap:8px;flex-wrap:wrap;margin:40px 0 30px;justify-content:center}
+    .news-filter{background:rgba(255,255,255,.06);border:1px solid var(--dark-border);border-radius:8px;color:rgba(255,255,255,.5);font-size:.8rem;font-weight:600;padding:7px 16px;cursor:pointer;transition:all .2s}
+    .news-filter:hover{color:#fff;background:rgba(255,255,255,.1)}
+    .news-filter.active{background:rgba(201,168,76,.15);border-color:var(--gold);color:var(--gold)}
+    .news-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-bottom:60px}
+    .news-card{background:var(--dark-card);border:1px solid var(--dark-border);border-radius:14px;overflow:hidden;transition:transform .3s,border-color .3s}
+    .news-card:hover{transform:translateY(-4px);border-color:rgba(201,168,76,.3)}
+    .news-card-img{width:100%;height:180px;object-fit:cover}
+    .news-card-body{padding:20px}
+    .news-card-meta{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+    .news-tag{font-size:.62rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 9px;border-radius:5px;background:rgba(201,168,76,.15);color:var(--gold)}
+    .news-date{font-size:.7rem;color:rgba(255,255,255,.35);margin-left:auto}
+    .news-title{font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700;margin-bottom:8px;line-height:1.4}
+    .news-excerpt{font-size:.83rem;color:var(--gray);line-height:1.65}
+    .news-contact{font-size:.78rem;color:var(--gold);margin-top:12px;padding-top:12px;border-top:1px solid var(--dark-border)}
+    .news-empty{text-align:center;padding:80px 20px;color:var(--gray)}
+    .news-empty span{font-size:3rem;display:block;margin-bottom:12px}
+    @media(max-width:900px){.news-grid{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:600px){.news-grid{grid-template-columns:1fr}.news-hero h1{font-size:2.5rem}}
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <a href="index.html" class="nav-logo"><svg width="26" height="26" viewBox="0 0 26 26" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0"><polygon points="13,1.5 23.1,7.5 23.1,18.5 13,24.5 2.9,18.5 2.9,7.5" fill="rgba(201,168,76,0.12)" stroke="#C9A84C" stroke-width="1.5"/><text x="13" y="17.5" text-anchor="middle" font-size="9.5" font-weight="900" fill="#C9A84C" font-family="Georgia,serif">PF</text></svg> PRO<span>FORM</span></a>
+  <ul class="nav-menu">
+    <li>
+      <button>Explorer <span class="arrow">▾</span></button>
+      <div class="dropdown">
+        <a href="scene.html"><span class="icon">🎭</span> Scène & Théâtre</a>
+        <a href="cinema.html"><span class="icon">🎬</span> Cinéma</a>
+        <a href="art-plastique.html"><span class="icon">🎨</span> Art Plastique</a>
+        <a href="musique.html"><span class="icon">🎵</span> Musique</a>
+      </div>
+    </li>
+    <li>
+      <button>Menu <span class="arrow">▾</span></button>
+      <div class="dropdown">
+        <a href="promotion.html"><span class="icon">⭐</span> Promotion</a>
+        <div style="padding:6px 18px 4px;font-size:.68rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--gold);font-weight:700;border-top:1px solid var(--dark-border);margin-top:4px">Formations</div>
+        <a href="sceneformation.html"><span class="icon">🎭</span> Scène &amp; Théâtre</a>
+        <a href="cinemaformation.html"><span class="icon">🎬</span> Cinéma</a>
+        <a href="art-plastiqueformation.html"><span class="icon">🎨</span> Art Plastique</a>
+        <a href="musiqueformation.html"><span class="icon">🎵</span> Musique</a>
+        <a href="actualites.html"><span class="icon">📰</span> Actualités</a>
+        <a href="index.html#siteFooter"><span class="icon">📞</span> Contact</a>
+      </div>
+    </li>
+    <li>
+      <button class="btn btn-gold" style="padding:8px 18px;font-size:0.8rem;">Connexion <span class="arrow">▾</span></button>
+      <div class="dropdown" style="right:0;left:auto;min-width:200px;">
+        <a href="index.html"><span class="icon">👤</span> S'inscrire / Se connecter</a>
+      </div>
+    </li>
+  </ul>
+</nav>
+
+<div class="page-wrapper">
+
+  <section class="news-hero">
+    <div class="container">
+      <div class="section-badge">📰 Actualités ProForm</div>
+      <h1>Dernières <span class="text-gold">nouvelles</span></h1>
+      <p>Annonces, événements, offres de formation et articles des disciplines artistiques algériennes.</p>
+    </div>
+  </section>
+
+  <div class="container">
+
+    <!-- Filtres -->
+    <div class="news-filters" id="newsFilters">
+      <button class="news-filter active" onclick="filterNews('',this)">Tout voir</button>
+      <button class="news-filter" onclick="filterNews('Annonce',this)">📣 Annonces</button>
+      <button class="news-filter" onclick="filterNews('Événement',this)">🎪 Événements</button>
+      <button class="news-filter" onclick="filterNews('Article',this)">📰 Articles</button>
+      <button class="news-filter" onclick="filterNews('Offre',this)">🎯 Offres</button>
+    </div>
+
+    <!-- Grille actualités -->
+    <div class="news-grid" id="newsGrid">
+      <div class="news-empty" style="grid-column:1/-1"><span>⏳</span>Chargement des actualités…</div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-content">
+      <div>
+        <div class="footer-logo">ProForm</div>
+        <p class="footer-desc">La plateforme de référence pour les artistes et professionnels de la culture.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Formations</h4>
+        <ul>
+          <li><a href="scene.html">Scène</a></li>
+          <li><a href="cinema.html">Cinéma</a></li>
+          <li><a href="art-plastique.html">Art Plastique</a></li>
+          <li><a href="musique.html">Musique</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Plateforme</h4>
+        <ul>
+          <li><a href="actualites.html">Actualités</a></li>
+          <li><a href="formation.html">Formations</a></li>
+          <li><a href="promotion.html">Promotion</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ProForm.COM — Tous droits réservés</span>
+      <span>Conçu avec passion pour les arts 🎭</span>
+    </div>
+  </div>
+</footer>
+
+<script src="store.js"></script>
+<script src="app.js"></script>
+<script>
+  const NEWS_API = 'http://localhost:5000';
+  let _newsTypeFilter = '';
+  let _allNews = [];
+
+  function filterNews(type, btn) {
+    _newsTypeFilter = type;
+    document.querySelectorAll('.news-filter').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    renderNews();
+  }
+
+  async function loadAllNews() {
+    /* Essayer API */
+    let apiNews = [];
+    try {
+      const r = await fetch(NEWS_API + '/api/news?limit=100');
+      if (r.ok) { const d = await r.json(); apiNews = d.news || []; }
+    } catch {}
+    /* Fusionner avec localStorage */
+    const apiIds = new Set(apiNews.map(n => n._id));
+    const local  = Store.News.getAll(null).filter(n => !apiIds.has(n._id));
+    _allNews = [...apiNews, ...local];
+    renderNews();
+  }
+
+  function renderNews() {
+    const grid = document.getElementById('newsGrid');
+    const list = _newsTypeFilter
+      ? _allNews.filter(n => n.type === _newsTypeFilter)
+      : _allNews;
+
+    if (!list.length) {
+      grid.innerHTML = `<div class="news-empty" style="grid-column:1/-1">
+        <span>📰</span>
+        <div style="margin-bottom:8px">Aucune actualité pour le moment.</div>
+        <div style="font-size:.8rem;color:rgba(255,255,255,.3)">L'administrateur n'a pas encore publié d'actualités.</div>
+      </div>`;
+      return;
+    }
+
+    grid.innerHTML = list.map(n => {
+      const typeColor = { Annonce:'#c9a84c', Événement:'#3498db', Article:'#27ae60', Offre:'#9b59b6' };
+      const clr  = typeColor[n.type] || '#c9a84c';
+      const date = n.createdAt ? new Date(n.createdAt).toLocaleDateString('fr-FR', { day:'2-digit', month:'long', year:'numeric' }) : '';
+      return `<div class="news-card">
+        ${n.image ? `<img src="${n.image}" alt="${n.titre}" class="news-card-img" onerror="this.style.display='none'">` : ''}
+        <div class="news-card-body">
+          <div class="news-card-meta">
+            <span class="news-tag" style="background:${clr}18;color:${clr}">${n.type||'Article'}</span>
+            ${n.discipline ? `<span style="font-size:.65rem;color:rgba(255,255,255,.35)">${n.discipline}</span>` : ''}
+            <span class="news-date">${date}</span>
+          </div>
+          <div class="news-title">${n.titre}</div>
+          <div class="news-excerpt">${(n.contenu||'').substring(0,180)}${(n.contenu||'').length>180?'…':''}</div>
+          ${n.contact ? `<div class="news-contact">📞 ${n.contact}</div>` : ''}
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  /* Seed d'exemple si vide */
+  if (Store.News.getAll(null).length === 0) {
+    Store.News.add({ titre:'Ouverture des inscriptions 2026', type:'Annonce', discipline:'',
+      contenu:'Les inscriptions pour la saison artistique 2026 sont maintenant ouvertes sur ProForm. Rejoignez des milliers d\'artistes et bénéficiez de formations professionnelles de haut niveau.',
+      contact:'0550 123 456 — inscriptions@proform.com' });
+    Store.News.add({ titre:'Festival National du Théâtre — Alger', type:'Événement', discipline:'scene',
+      contenu:'Le Festival National du Théâtre professionnel se tiendra du 15 au 22 avril 2026 au Théâtre National Algérien. Venez découvrir les meilleures pièces de la scène algérienne.',
+      contact:'0770 456 789' });
+    Store.News.add({ titre:'Nouveau programme de Cinéma — Réalisation avancée', type:'Offre', discipline:'cinema',
+      contenu:'ProForm lance un nouveau programme de formation en réalisation cinématographique avancée, dispensé par des professionnels internationaux. 60 heures de cours intensifs.',
+      contact:'cinema@proform.com' });
+  }
+
+  /* Charger depuis API + localStorage */
+  loadAllNews();
+</script>
+</body>
+</html>

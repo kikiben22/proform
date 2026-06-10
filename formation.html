@@ -1,0 +1,719 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ProForm — Formations</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .formation-hero {
+      padding: 110px 0 70px;
+      text-align: center;
+      position: relative;
+    }
+    .formation-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 0%, rgba(201,168,76,0.1) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .formation-hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 3.8rem;
+      font-weight: 900;
+      margin-bottom: 20px;
+      position: relative;
+    }
+    .formation-hero p {
+      font-size: 1.1rem;
+      color: var(--gray);
+      max-width: 650px;
+      margin: 0 auto 40px;
+      line-height: 1.8;
+      position: relative;
+    }
+
+    /* Category Grid */
+    .categories-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+      margin: 60px 0;
+    }
+
+    .cat-card {
+      position: relative;
+      border-radius: 20px;
+      overflow: hidden;
+      aspect-ratio: 3/4;
+      cursor: pointer;
+      text-decoration: none;
+      display: block;
+      transition: transform 0.4s ease;
+    }
+
+    .cat-card:hover {
+      transform: translateY(-10px);
+    }
+
+    .cat-card-bg {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 6rem;
+      transition: transform 0.5s ease;
+    }
+
+    .cat-card:hover .cat-card-bg {
+      transform: scale(1.1);
+    }
+
+    .cat-card-bg.scene {
+      background: linear-gradient(160deg, #1a0a2e 0%, #2d1b69 40%, #4a2080 100%);
+    }
+    .cat-card-bg.cinema {
+      background: linear-gradient(160deg, #0a1a0a 0%, #1a3a1a 40%, #2d6020 100%);
+    }
+    .cat-card-bg.art {
+      background: linear-gradient(160deg, #2a0a0a 0%, #5a1a10 40%, #8a2510 100%);
+    }
+    .cat-card-bg.music {
+      background: linear-gradient(160deg, #0a1a2a 0%, #102a4a 40%, #1a4a7a 100%);
+    }
+
+    .cat-card-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(transparent 30%, rgba(0,0,0,0.9) 100%);
+    }
+
+    .cat-card-content {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 24px;
+    }
+
+    .cat-card-badge {
+      display: inline-block;
+      background: rgba(201,168,76,0.2);
+      border: 1px solid rgba(201,168,76,0.4);
+      color: var(--gold);
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 4px;
+      margin-bottom: 10px;
+    }
+
+    .cat-card-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 6px;
+    }
+
+    .cat-card-count {
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 14px;
+    }
+
+    .cat-card-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--gradient);
+      color: var(--black);
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 7px 14px;
+      border-radius: 6px;
+      transform: translateY(10px);
+      opacity: 0;
+      transition: all 0.3s ease;
+    }
+
+    .cat-card:hover .cat-card-btn {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    /* Stats Bar */
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: var(--dark-border);
+      border: 1px solid var(--dark-border);
+      border-radius: 16px;
+      overflow: hidden;
+      margin: 60px 0;
+    }
+
+    .stat-item {
+      background: var(--dark-card);
+      padding: 30px;
+      text-align: center;
+    }
+
+    .stat-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.5rem;
+      font-weight: 900;
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 6px;
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      color: var(--gray);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* Featured Courses */
+    .courses-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin: 30px 0 60px;
+    }
+
+    /* Testimonials */
+    .testimonials {
+      padding: 60px 0;
+      background: var(--dark);
+      margin: 60px 0;
+      border-top: 1px solid var(--dark-border);
+      border-bottom: 1px solid var(--dark-border);
+    }
+
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-top: 40px;
+    }
+
+    .testimonial-card {
+      background: var(--black);
+      border: 1px solid var(--dark-border);
+      border-radius: 14px;
+      padding: 24px;
+    }
+
+    .testimonial-stars {
+      color: var(--gold);
+      font-size: 0.9rem;
+      margin-bottom: 14px;
+      letter-spacing: 2px;
+    }
+
+    .testimonial-text {
+      font-size: 0.9rem;
+      color: var(--gray-light);
+      line-height: 1.7;
+      font-style: italic;
+      margin-bottom: 20px;
+    }
+
+    .testimonial-author {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .author-avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: var(--gradient);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+
+    .author-name {
+      font-size: 0.88rem;
+      font-weight: 600;
+    }
+
+    .author-role {
+      font-size: 0.75rem;
+      color: var(--gold);
+    }
+
+    /* CTA Section */
+    .cta-section {
+      background: var(--dark-card);
+      border: 1px solid var(--dark-border);
+      border-radius: 24px;
+      padding: 60px;
+      text-align: center;
+      margin-bottom: 40px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-section::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 50%, rgba(201,168,76,0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .cta-section h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      position: relative;
+    }
+
+    .cta-section p {
+      color: var(--gray);
+      font-size: 1rem;
+      line-height: 1.7;
+      max-width: 500px;
+      margin: 0 auto 32px;
+      position: relative;
+    }
+
+    .cta-btns {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      position: relative;
+    }
+
+    @media (max-width: 1024px) {
+      .categories-grid { grid-template-columns: repeat(2, 1fr); }
+      .courses-grid { grid-template-columns: repeat(2, 1fr); }
+      .testimonials-grid { grid-template-columns: 1fr; }
+      .stats-bar { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 600px) {
+      .categories-grid { grid-template-columns: 1fr; }
+      .courses-grid { grid-template-columns: 1fr; }
+      .formation-hero h1 { font-size: 2.5rem; }
+      .cta-section { padding: 40px 24px; }
+      .cta-section h2 { font-size: 1.8rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <a href="index.html" class="nav-logo"><svg width="26" height="26" viewBox="0 0 26 26" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0"><polygon points="13,1.5 23.1,7.5 23.1,18.5 13,24.5 2.9,18.5 2.9,7.5" fill="rgba(201,168,76,0.12)" stroke="#C9A84C" stroke-width="1.5"/><text x="13" y="17.5" text-anchor="middle" font-size="9.5" font-weight="900" fill="#C9A84C" font-family="Georgia,serif">PF</text></svg> PRO<span>FORM</span></a>
+  <ul class="nav-menu">
+    <li>
+      <button>Explorer <span class="arrow">▾</span></button>
+      <div class="dropdown">
+        <a href="scene.html"><span class="icon">🎭</span> Scène & Théâtre</a>
+        <a href="cinema.html"><span class="icon">🎬</span> Cinéma</a>
+        <a href="art-plastique.html"><span class="icon">🎨</span> Art Plastique</a>
+        <a href="musique.html"><span class="icon">🎵</span> Musique</a>
+      </div>
+    </li>
+    <li>
+      <button>Menu <span class="arrow">▾</span></button>
+      <div class="dropdown">
+        <a href="promotion.html"><span class="icon">⭐</span> Promotion</a>
+        <div style="padding:6px 18px 4px;font-size:.68rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--gold);font-weight:700;border-top:1px solid var(--dark-border);margin-top:4px">Formations</div>
+        <a href="sceneformation.html"><span class="icon">🎭</span> Scène &amp; Théâtre</a>
+        <a href="cinemaformation.html"><span class="icon">🎬</span> Cinéma</a>
+        <a href="art-plastiqueformation.html"><span class="icon">🎨</span> Art Plastique</a>
+        <a href="musiqueformation.html"><span class="icon">🎵</span> Musique</a>
+        <a href="actualites.html"><span class="icon">📰</span> Actualités</a>
+        <a href="index.html#siteFooter"><span class="icon">📞</span> Contact</a>
+      </div>
+    </li>
+    <li>
+      <button class="btn btn-gold" style="padding:8px 18px;font-size:0.8rem;">Connexion <span class="arrow">▾</span></button>
+      <div class="dropdown" style="right:0;left:auto;min-width:200px;">
+        <a href="index.html"><span class="icon">👤</span> S'inscrire / Se connecter</a>
+      </div>
+    </li>
+  </ul>
+</nav>
+
+<div class="page-wrapper">
+
+  <!-- HERO -->
+  <section class="formation-hero">
+    <div class="container">
+      <div class="section-badge">📚 Catalogue des Formations</div>
+      <h1>Explorez nos <span class="text-gold">disciplines</span></h1>
+      <p>
+        Des formations professionnelles dispensées par les meilleurs experts
+        du monde artistique — scène, cinéma, art plastique et musique.
+      </p>
+
+      <!-- Search Bar -->
+      <div class="search-bar">
+        <input type="text" id="formationSearch" placeholder="Rechercher une formation, un cours, un artiste..." />
+        <button class="search-btn" onclick="searchFormations()">🔍</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="container">
+
+    <!-- CATEGORY CARDS -->
+    <div class="categories-grid">
+
+      <a href="scene.html" class="cat-card">
+        <div class="cat-card-bg scene">🎭</div>
+        <div class="cat-card-overlay"></div>
+        <div class="cat-card-content">
+          <div class="cat-card-badge">Arts Vivants</div>
+          <div class="cat-card-title">Scène & Théâtre</div>
+          <div class="cat-card-count" id="scene-count">📚 Chargement…</div>
+          <span class="cat-card-btn">Explorer →</span>
+        </div>
+      </a>
+
+      <a href="cinema.html" class="cat-card">
+        <div class="cat-card-bg cinema">🎬</div>
+        <div class="cat-card-overlay"></div>
+        <div class="cat-card-content">
+          <div class="cat-card-badge">Audiovisuel</div>
+          <div class="cat-card-title">Cinéma</div>
+          <div class="cat-card-count" id="cinema-count">📚 Chargement…</div>
+          <span class="cat-card-btn">Explorer →</span>
+        </div>
+      </a>
+
+      <a href="art-plastique.html" class="cat-card">
+        <div class="cat-card-bg art">🎨</div>
+        <div class="cat-card-overlay"></div>
+        <div class="cat-card-content">
+          <div class="cat-card-badge">Beaux-Arts</div>
+          <div class="cat-card-title">Art Plastique</div>
+          <div class="cat-card-count" id="art-count">📚 Chargement…</div>
+          <span class="cat-card-btn">Explorer →</span>
+        </div>
+      </a>
+
+      <a href="musique.html" class="cat-card">
+        <div class="cat-card-bg music">🎵</div>
+        <div class="cat-card-overlay"></div>
+        <div class="cat-card-content">
+          <div class="cat-card-badge">Arts Sonores</div>
+          <div class="cat-card-title">Musique</div>
+          <div class="cat-card-count" id="music-count">📚 Chargement…</div>
+          <span class="cat-card-btn">Explorer →</span>
+        </div>
+      </a>
+
+    </div>
+
+    <!-- STATS BAR -->
+    <div class="stats-bar">
+      <div class="stat-item">
+        <div class="stat-num">500+</div>
+        <div class="stat-label">Cours en ligne</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">120+</div>
+        <div class="stat-label">Formateurs experts</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">50K+</div>
+        <div class="stat-label">Étudiants inscrits</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">98%</div>
+        <div class="stat-label">Taux de satisfaction</div>
+      </div>
+    </div>
+
+    <!-- FEATURED COURSES — chargés depuis MongoDB -->
+    <div class="section-badge">🌟 Cours en vedette</div>
+    <h2 class="section-title">
+      Formations <span class="highlight">recommandées</span>
+    </h2>
+
+    <div class="courses-grid" id="coursesGrid">
+      <div style="grid-column:1/-1;text-align:center;padding:40px;color:rgba(255,255,255,0.4)">
+        <div style="font-size:2rem;margin-bottom:10px">⏳</div>Chargement des formations…
+      </div>
+    </div>
+
+  </div>
+
+  <!-- TESTIMONIALS -->
+  <section class="testimonials">
+    <div class="container">
+      <div class="section-badge">💬 Témoignages</div>
+      <h2 class="section-title">Ce que disent nos <span class="highlight">étudiants</span></h2>
+
+      <div class="testimonials-grid">
+        <div class="testimonial-card">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-text">
+            "ProForm m'a ouvert des portes que je n'aurais jamais pu imaginer.
+            Les formateurs sont des professionnels de haut niveau et les cours sont
+            d'une qualité exceptionnelle."
+          </p>
+          <div class="testimonial-author">
+            <div class="author-avatar">👩</div>
+            <div>
+              <div class="author-name">Amina Bensalem</div>
+              <div class="author-role">Comédienne, Alger</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-text">
+            "La formation en réalisation cinématographique sur ProForm est
+            complète et bien structurée. Je recommande à tous les passionnés de cinéma."
+          </p>
+          <div class="testimonial-author">
+            <div class="author-avatar">👨</div>
+            <div>
+              <div class="author-name">Karim Meziane</div>
+              <div class="author-role">Réalisateur, Oran</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-text">
+            "Grâce au programme Promotion de ProForm, j'ai pu exposer mes
+            tableaux dans plusieurs galeries nationales. Une expérience inoubliable."
+          </p>
+          <div class="testimonial-author">
+            <div class="author-avatar">👩</div>
+            <div>
+              <div class="author-name">Yasmine Hadjadj</div>
+              <div class="author-role">Peintre, Constantine</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="container">
+    <!-- CTA -->
+    <div class="cta-section">
+      <h2>Prêt à <span class="text-gold">commencer</span> votre voyage artistique ?</h2>
+      <p>Rejoignez ProForm aujourd'hui et accédez à toutes nos formations professionnelles.</p>
+      <div class="cta-btns">
+        <a href="index.html" class="btn btn-gold btn-lg">✦ S'inscrire gratuitement</a>
+        <a href="scene.html" class="btn btn-outline btn-lg">Parcourir les cours →</a>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-content">
+      <div>
+        <div class="footer-logo">ProForm</div>
+        <p class="footer-desc">La plateforme de référence pour les artistes et professionnels de la culture.</p>
+        <div class="footer-social">
+          <a href="#" class="social-btn">f</a>
+          <a href="#" class="social-btn">in</a>
+          <a href="#" class="social-btn">📷</a>
+          <a href="#" class="social-btn">▶</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Formations</h4>
+        <ul>
+          <li><a href="scene.html">Scène</a></li>
+          <li><a href="#">Cinéma</a></li>
+          <li><a href="#">Art Plastique</a></li>
+          <li><a href="#">Musique</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Plateforme</h4>
+        <ul>
+          <li><a href="#">À propos</a></li>
+          <li><a href="promotion.html">Promotion</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Légal</h4>
+        <ul>
+          <li><a href="#">CGU</a></li>
+          <li><a href="#">Confidentialité</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ProForm.COM — Tous droits réservés</span>
+      <span>Conçu avec passion pour les arts 🎭</span>
+    </div>
+  </div>
+</footer>
+
+<script src="store.js"></script>
+<script src="app.js"></script>
+<script>
+  const FAPI = 'http://localhost:5000';
+  const DISC_ICON  = {scene:'🎭',cinema:'🎬','art-plastique':'🎨',musique:'🎵'};
+  const DISC_LABEL = {scene:'Scène & Théâtre',cinema:'Cinéma','art-plastique':'Art Plastique',musique:'Musique'};
+  const DISC_LINK  = {scene:'scene.html',cinema:'cinema.html','art-plastique':'art-plastique.html',musique:'musique.html'};
+  const DISC_BG    = {scene:'linear-gradient(135deg,#2d1b69,#4a2080)',cinema:'linear-gradient(135deg,#1a3a1a,#2d6020)','art-plastique':'linear-gradient(135deg,#5a1a10,#8a2510)',musique:'linear-gradient(135deg,#1a2a4a,#2a3a6a)'};
+
+  function courseCard(c) {
+    const icon  = DISC_ICON[c.categorie]  || '📚';
+    const label = DISC_LABEL[c.categorie] || c.categorie;
+    const link  = DISC_LINK[c.categorie]  || 'formation.html';
+    const bg    = DISC_BG[c.categorie]    || 'linear-gradient(135deg,#1a1a2e,#2d1b69)';
+    const note  = c.note?.moyenne ? `⭐ ${c.note.moyenne} (${c.note.nombreAvis||0} avis)` : '';
+    return `<div class="course-card" onclick="window.location='${link}'" style="cursor:pointer">
+      ${c.image
+        ? `<img src="${c.image}" alt="${c.titre}" class="course-card-img" onerror="this.style.display='none'">`
+        : `<div class="course-card-img" style="display:flex;align-items:center;justify-content:center;font-size:3.5rem;background:${bg};min-height:160px">${icon}</div>`}
+      <div class="course-card-body">
+        <span class="course-tag">${icon} ${label}</span>
+        <div class="course-title">${c.titre}</div>
+        <div class="course-desc">${(c.description||'').substring(0,110)}…</div>
+        <div class="course-meta">
+          ${note ? `<span>${note}</span>` : ''}
+          ${c.dureeHeures ? `<span>🕐 ${c.dureeHeures}h</span>` : ''}
+        </div>
+        ${c.formateur?.nom ? `<div style="font-size:.75rem;color:var(--gray);margin-top:6px">👤 ${c.formateur.nom}</div>` : ''}
+        <a href="${link}" class="btn btn-gold" style="display:block;margin-top:12px;text-align:center;text-decoration:none;padding:8px">Voir la formation →</a>
+      </div>
+    </div>`;
+  }
+
+  function searchFormations() {
+    const q = document.getElementById('formationSearch').value.trim().toLowerCase();
+    document.querySelectorAll('#coursesGrid .course-card').forEach(card => {
+      card.style.display = card.innerText.toLowerCase().includes(q) ? 'block' : 'none';
+    });
+  }
+  document.getElementById('formationSearch').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') searchFormations();
+  });
+
+  /* Compter les cours par discipline et mettre à jour les cartes */
+  async function updateCounts() {
+    try {
+      const r = await fetch(FAPI + '/api/courses?limit=200');
+      if (!r.ok) return;
+      const d = await r.json();
+      const courses = d.courses || [];
+      const counts = {scene:0, cinema:0, 'art-plastique':0, musique:0};
+      courses.forEach(c => { if (counts[c.categorie] !== undefined) counts[c.categorie]++; });
+      const labels = {scene:'scene-count', cinema:'cinema-count', 'art-plastique':'art-count', musique:'music-count'};
+      Object.entries(counts).forEach(([cat, n]) => {
+        const el = document.getElementById(labels[cat]);
+        if (el) el.textContent = `📚 ${n} cours disponibles`;
+      });
+    } catch(_) {}
+  }
+
+  /* ── Auth gate + discipline filter ─────────────────────── */
+  const DISC_MAP = {
+    'Théâtre': 'scene', 'Scène': 'scene', 'scene': 'scene',
+    'Cinéma': 'cinema', 'cinema': 'cinema',
+    'Art Plastique': 'art-plastique', 'art-plastique': 'art-plastique',
+    'Musique': 'musique', 'musique': 'musique'
+  };
+
+  async function checkAuthAndLoad() {
+    const token = localStorage.getItem('proform_token');
+    if (!token) {
+      /* Afficher bannière "connexion requise" au lieu de rediriger */
+      const grid = document.getElementById('coursesGrid');
+      grid.innerHTML = `
+        <div style="grid-column:1/-1;text-align:center;padding:60px 20px">
+          <div style="font-size:4rem;margin-bottom:16px">🔒</div>
+          <div style="font-size:1.3rem;font-weight:600;color:#fff;margin-bottom:12px">Accès réservé aux membres</div>
+          <div style="color:rgba(255,255,255,0.6);margin-bottom:24px">Inscrivez-vous ou connectez-vous pour accéder aux formations de votre discipline.</div>
+          <a href="index.html#register" class="btn btn-gold" style="text-decoration:none;padding:12px 28px;font-size:1rem">
+            S'inscrire maintenant →
+          </a>
+          <span style="margin:0 12px;color:rgba(255,255,255,0.3)">|</span>
+          <a href="index.html" class="btn" style="text-decoration:none;padding:12px 28px;font-size:1rem;background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.2)">
+            Se connecter
+          </a>
+        </div>`;
+      return;
+    }
+
+    /* Récupérer les infos utilisateur pour filtrer par discipline */
+    let userDisc = null;
+    try {
+      const me = await fetch(FAPI + '/api/auth/me', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      if (me.ok) {
+        const data = await me.json();
+        const rawDisc = data.user?.discipline || data.discipline || '';
+        userDisc = DISC_MAP[rawDisc] || null;
+      }
+    } catch(_) {}
+
+    await loadFormations(userDisc);
+    updateCounts();
+  }
+
+  async function loadFormations(filterDisc) {
+    const grid = document.getElementById('coursesGrid');
+    try {
+      const url = filterDisc
+        ? FAPI + '/api/courses?categorie=' + filterDisc + '&limit=20'
+        : FAPI + '/api/courses?limit=12';
+      const r = await fetch(url);
+      if (!r.ok) throw new Error();
+      const d = await r.json();
+      const courses = d.courses || [];
+      if (courses.length) {
+        if (filterDisc) {
+          const icon  = DISC_ICON[filterDisc]  || '📚';
+          const label = DISC_LABEL[filterDisc] || filterDisc;
+          grid.parentElement.insertAdjacentHTML('beforebegin',
+            `<div style="text-align:center;margin-bottom:16px;padding:12px 20px;background:rgba(255,255,255,0.05);border-radius:12px;border:1px solid rgba(255,255,255,0.1)">
+              <span style="font-size:1.1rem">${icon} Formations de votre discipline : <strong>${label}</strong></span>
+            </div>`);
+        }
+        grid.innerHTML = courses.map(courseCard).join('');
+        return;
+      }
+    } catch(_) {}
+    /* Fallback */
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:40px;color:rgba(255,255,255,0.4)">
+      <div style="font-size:3rem;margin-bottom:12px">📚</div>
+      <div>Aucune formation disponible pour votre discipline.</div>
+    </div>`;
+  }
+
+  window.addEventListener('DOMContentLoaded', () => { checkAuthAndLoad(); });
+</script>
+
+</body>
+</html>

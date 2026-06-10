@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ProForm — Upload Vidéo</title>
+  <link rel="stylesheet" href="styles.css"/>
+  <style>
+    body { background:#0a0a0a; min-height:100vh; }
+    .upload-page { max-width:800px; margin:0 auto; padding:40px 24px 80px; }
+
+    .upload-header { text-align:center; padding:60px 0 40px; }
+    .upload-header h1 { font-family:'Playfair Display',serif; font-size:2.6rem; font-weight:900; margin-bottom:12px; }
+    .upload-header p { color:var(--gray); font-size:1rem; }
+
+    /* Upload Card */
+    .upload-card { background:var(--dark-card); border:1px solid var(--dark-border); border-radius:20px; padding:40px; margin-bottom:32px; }
+    .upload-card h2 { font-family:'Playfair Display',serif; font-size:1.3rem; font-weight:700; margin-bottom:28px; display:flex; align-items:center; gap:10px; }
+
+    .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+    .form-group { display:flex; flex-direction:column; gap:8px; }
+    .form-group.full { grid-column:1/-1; }
+    .form-label { font-size:0.82rem; font-weight:600; color:var(--gray-light); text-transform:uppercase; letter-spacing:0.5px; }
+    .form-control { background:rgba(255,255,255,0.04); border:1px solid var(--dark-border); border-radius:10px; padding:12px 16px; color:var(--white); font-family:'Inter',sans-serif; font-size:0.9rem; transition:border-color 0.2s ease; outline:none; width:100%; box-sizing:border-box; }
+    .form-control:focus { border-color:var(--gold-dark); }
+    select.form-control option { background:#1a1a1a; }
+    textarea.form-control { resize:vertical; min-height:90px; }
+
+    /* File Drop Zone */
+    .drop-zone { border:2px dashed var(--dark-border); border-radius:14px; padding:40px 24px; text-align:center; cursor:pointer; transition:all 0.3s ease; position:relative; background:rgba(255,255,255,0.02); }
+    .drop-zone:hover, .drop-zone.dragover { border-color:var(--gold); background:rgba(201,168,76,0.05); }
+    .drop-zone input[type="file"] { position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%; }
+    .drop-icon { font-size:2.8rem; margin-bottom:12px; }
+    .drop-zone h3 { font-size:1rem; font-weight:600; margin-bottom:6px; }
+    .drop-zone p { font-size:0.8rem; color:var(--gray); }
+    .drop-zone .file-selected { margin-top:12px; background:rgba(201,168,76,0.1); border:1px solid rgba(201,168,76,0.3); border-radius:8px; padding:10px 14px; font-size:0.85rem; color:var(--gold); display:none; }
+
+    /* Thumb preview */
+    .thumb-preview { width:100%; height:160px; border-radius:10px; object-fit:cover; display:none; margin-top:12px; border:1px solid var(--dark-border); }
+
+    /* Progress */
+    .progress-wrap { display:none; margin-top:20px; }
+    .progress-bar-bg { background:rgba(255,255,255,0.06); border-radius:50px; height:10px; overflow:hidden; }
+    .progress-bar-fill { height:100%; background:var(--gradient); border-radius:50px; width:0%; transition:width 0.3s ease; }
+    .progress-text { font-size:0.82rem; color:var(--gray); margin-top:8px; text-align:center; }
+
+    /* Result */
+    .upload-result { display:none; background:rgba(39,174,96,0.08); border:1px solid rgba(39,174,96,0.3); border-radius:12px; padding:20px 24px; margin-top:20px; }
+    .upload-result.error { background:rgba(231,76,60,0.08); border-color:rgba(231,76,60,0.3); }
+    .upload-result h4 { font-size:0.95rem; font-weight:700; margin-bottom:6px; }
+    .upload-result p { font-size:0.82rem; color:var(--gray); }
+
+    /* Video List */
+    .video-list { display:grid; gap:14px; }
+    .video-item { background:var(--black); border:1px solid var(--dark-border); border-radius:12px; padding:16px; display:flex; align-items:center; gap:16px; }
+    .video-item-thumb { width:80px; height:52px; border-radius:8px; object-fit:cover; background:var(--dark-card); flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:1.6rem; overflow:hidden; }
+    .video-item-thumb video { width:100%; height:100%; object-fit:cover; }
+    .video-item-info { flex:1; min-width:0; }
+    .video-item-info strong { display:block; font-size:0.88rem; font-weight:600; margin-bottom:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .video-item-info span { font-size:0.74rem; color:var(--gray); }
+    .video-item-badges { display:flex; gap:6px; margin-top:5px; flex-wrap:wrap; }
+    .vbadge { font-size:0.65rem; font-weight:700; padding:2px 8px; border-radius:4px; background:rgba(201,168,76,0.12); color:var(--gold); border:1px solid rgba(201,168,76,0.25); text-transform:uppercase; letter-spacing:0.5px; }
+    .del-btn { background:rgba(231,76,60,0.1); border:1px solid rgba(231,76,60,0.3); color:#e74c3c; border-radius:8px; padding:7px 14px; font-size:0.78rem; font-weight:600; cursor:pointer; transition:all 0.2s ease; flex-shrink:0; }
+    .del-btn:hover { background:rgba(231,76,60,0.2); }
+
+    .empty-state { text-align:center; padding:40px; color:var(--gray); }
+    .empty-state .big { font-size:3rem; margin-bottom:12px; }
+
+    @media(max-width:600px){ .form-grid{grid-template-columns:1fr} }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="index.html" class="nav-logo"><svg width="26" height="26" viewBox="0 0 26 26" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0"><polygon points="13,1.5 23.1,7.5 23.1,18.5 13,24.5 2.9,18.5 2.9,7.5" fill="rgba(201,168,76,0.12)" stroke="#C9A84C" stroke-width="1.5"/><text x="13" y="17.5" text-anchor="middle" font-size="9.5" font-weight="900" fill="#C9A84C" font-family="Georgia,serif">PF</text></svg> PRO<span>FORM</span></a>
+  <ul class="nav-menu">
+    <li><a href="formation.html">Formations</a></li>
+    <li><a href="scene.html">Théâtre</a></li>
+    <li><a href="cinema.html">Cinéma</a></li>
+    <li><a href="art-plastique.html">Art</a></li>
+    <li><a href="musique.html">Musique</a></li>
+  </ul>
+</nav>
+
+<div class="upload-page">
+
+  <div class="upload-header">
+    <div class="section-badge">🎬 Administration</div>
+    <h1>Uploader une <span class="text-gold">Vidéo</span></h1>
+    <p>Ajoutez vos propres vidéos de cours — elles apparaîtront automatiquement sur les pages correspondantes.</p>
+  </div>
+
+  <!-- FORMULAIRE UPLOAD -->
+  <div class="upload-card">
+    <h2>📤 Nouvelle vidéo</h2>
+
+    <form id="uploadForm" enctype="multipart/form-data">
+
+      <div class="form-grid" style="margin-bottom:20px;">
+
+        <div class="form-group full">
+          <label class="form-label">Titre de la vidéo *</label>
+          <input type="text" class="form-control" id="titre" placeholder="Ex: Introduction à la performance scénique" required/>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Discipline *</label>
+          <select class="form-control" id="discipline" required onchange="updateCategories()">
+            <option value="">— Choisir —</option>
+            <option value="scene">🎭 Scène & Théâtre</option>
+            <option value="cinema">🎬 Cinéma</option>
+            <option value="art-plastique">🎨 Art Plastique</option>
+            <option value="musique">🎵 Musique</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Catégorie *</label>
+          <select class="form-control" id="categorie" required>
+            <option value="">— Choisir la discipline d'abord —</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Formateur / Présentateur</label>
+          <input type="text" class="form-control" id="formateur" placeholder="Votre nom"/>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Durée (ex: 45 min)</label>
+          <input type="text" class="form-control" id="duree" placeholder="45 min"/>
+        </div>
+
+        <div class="form-group full">
+          <label class="form-label">Description</label>
+          <textarea class="form-control" id="description" placeholder="Décrivez le contenu de cette vidéo..."></textarea>
+        </div>
+
+      </div>
+
+      <!-- VIDEO FILE -->
+      <div class="form-group" style="margin-bottom:20px;">
+        <label class="form-label">Fichier Vidéo * (MP4, MOV, AVI, MKV, WebM — max 2 Go)</label>
+        <div class="drop-zone" id="videoDropZone">
+          <input type="file" id="videoFile" accept="video/*" required onchange="onVideoSelected(this)"/>
+          <div class="drop-icon">🎬</div>
+          <h3>Glissez votre vidéo ici</h3>
+          <p>ou cliquez pour parcourir</p>
+          <div class="file-selected" id="videoFileName"></div>
+        </div>
+      </div>
+
+      <!-- THUMBNAIL -->
+      <div class="form-group" style="margin-bottom:28px;">
+        <label class="form-label">Miniature (Image de couverture — JPG, PNG — optionnel)</label>
+        <div class="drop-zone" id="thumbDropZone" style="padding:24px;">
+          <input type="file" id="thumbFile" accept="image/*" onchange="onThumbSelected(this)"/>
+          <div class="drop-icon" style="font-size:1.8rem;">🖼️</div>
+          <h3 style="font-size:0.9rem;">Ajouter une miniature</h3>
+          <p>JPG ou PNG recommandé</p>
+        </div>
+        <img class="thumb-preview" id="thumbPreview" src="" alt="Aperçu miniature"/>
+      </div>
+
+      <!-- PROGRESS -->
+      <div class="progress-wrap" id="progressWrap">
+        <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill"></div></div>
+        <div class="progress-text" id="progressText">Upload en cours...</div>
+      </div>
+
+      <!-- RESULT -->
+      <div class="upload-result" id="uploadResult">
+        <h4 id="resultTitle"></h4>
+        <p id="resultMsg"></p>
+      </div>
+
+      <button type="submit" class="btn btn-gold btn-full btn-lg" id="submitBtn" style="margin-top:20px;">
+        ✦ Uploader la vidéo
+      </button>
+
+    </form>
+  </div>
+
+  <!-- LISTE DES VIDÉOS -->
+  <div class="upload-card">
+    <h2>📚 Mes vidéos uploadées</h2>
+
+    <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
+      <select class="form-control" id="filterDiscipline" style="max-width:200px;" onchange="loadVideos()">
+        <option value="">Toutes les disciplines</option>
+        <option value="scene">🎭 Théâtre</option>
+        <option value="cinema">🎬 Cinéma</option>
+        <option value="art-plastique">🎨 Art Plastique</option>
+        <option value="musique">🎵 Musique</option>
+      </select>
+      <button class="btn btn-outline" onclick="loadVideos()" style="padding:10px 18px;font-size:0.82rem;">🔄 Rafraîchir</button>
+    </div>
+
+    <div class="video-list" id="videoList">
+      <div class="empty-state"><div class="big">🎬</div><p>Chargement...</p></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"><span id="toastIcon"></span><span id="toastMsg"></span></div>
+
+<script src="app.js"></script>
+<script>
+const API = 'http://localhost:5000/api';
+
+const categories = {
+  scene:         ['performance','ecriture','scenographie','mise-en-scene','improvisation'],
+  cinema:        ['realisation','scenario','montage','photo','documentaire'],
+  'art-plastique':['peinture','sculpture','numerique','dessin'],
+  musique:       ['guitare','piano','chant','production']
+};
+
+const catLabels = {
+  performance:'🎭 Performance', ecriture:'📜 Écriture Dramatique',
+  scenographie:'🏛️ Scénographie', 'mise-en-scene':'🎬 Mise en Scène',
+  improvisation:'⚡ Improvisation', realisation:'🎬 Réalisation',
+  scenario:'📝 Scénario', montage:'✂️ Montage', photo:'📷 Photographie',
+  documentaire:'🎥 Documentaire', peinture:'🖌️ Peinture',
+  sculpture:'🗿 Sculpture', numerique:'💻 Art Numérique',
+  dessin:'✏️ Dessin', guitare:'🎸 Guitare', piano:'🎹 Piano',
+  chant:'🎤 Chant', production:'🎧 Production'
+};
+
+const discLabels = {
+  scene:'🎭 Théâtre', cinema:'🎬 Cinéma',
+  'art-plastique':'🎨 Art Plastique', musique:'🎵 Musique'
+};
+
+function updateCategories() {
+  const disc = document.getElementById('discipline').value;
+  const sel = document.getElementById('categorie');
+  sel.innerHTML = '<option value="">— Choisir —</option>';
+  if (disc && categories[disc]) {
+    categories[disc].forEach(c => {
+      sel.innerHTML += `<option value="${c}">${catLabels[c]}</option>`;
+    });
+  }
+}
+
+function onVideoSelected(input) {
+  if (input.files[0]) {
+    const el = document.getElementById('videoFileName');
+    el.textContent = '✓ ' + input.files[0].name + ' (' + (input.files[0].size / 1024 / 1024).toFixed(1) + ' Mo)';
+    el.style.display = 'block';
+  }
+}
+
+function onThumbSelected(input) {
+  if (input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = document.getElementById('thumbPreview');
+      img.src = e.target.result;
+      img.style.display = 'block';
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+
+// Drag & drop visual
+['videoDropZone','thumbDropZone'].forEach(id => {
+  const el = document.getElementById(id);
+  el.addEventListener('dragover', e => { e.preventDefault(); el.classList.add('dragover'); });
+  el.addEventListener('dragleave', () => el.classList.remove('dragover'));
+  el.addEventListener('drop', e => { e.preventDefault(); el.classList.remove('dragover'); });
+});
+
+/* ---- UPLOAD ---- */
+document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+
+  const titre       = document.getElementById('titre').value.trim();
+  const discipline  = document.getElementById('discipline').value;
+  const categorie   = document.getElementById('categorie').value;
+  const formateur   = document.getElementById('formateur').value.trim();
+  const duree       = document.getElementById('duree').value.trim();
+  const description = document.getElementById('description').value.trim();
+  const videoFile   = document.getElementById('videoFile').files[0];
+  const thumbFile   = document.getElementById('thumbFile').files[0];
+
+  if (!videoFile) { showToast('Sélectionnez un fichier vidéo.', 'error'); return; }
+
+  const fd = new FormData();
+  fd.append('titre', titre);
+  fd.append('discipline', discipline);
+  fd.append('categorie', categorie);
+  fd.append('formateur', formateur);
+  fd.append('duree', duree);
+  fd.append('description', description);
+  fd.append('video', videoFile);
+  if (thumbFile) fd.append('thumbnail', thumbFile);
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.textContent = 'Upload en cours...';
+
+  const progressWrap = document.getElementById('progressWrap');
+  const progressFill = document.getElementById('progressFill');
+  const progressText = document.getElementById('progressText');
+  progressWrap.style.display = 'block';
+
+  const resultEl = document.getElementById('uploadResult');
+  resultEl.style.display = 'none';
+
+  try {
+    await new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', API + '/videos/upload');
+
+      xhr.upload.onprogress = (e) => {
+        if (e.lengthComputable) {
+          const pct = Math.round((e.loaded / e.total) * 100);
+          progressFill.style.width = pct + '%';
+          progressText.textContent = `Upload : ${pct}% — ${(e.loaded/1024/1024).toFixed(1)} Mo / ${(e.total/1024/1024).toFixed(1)} Mo`;
+        }
+      };
+
+      xhr.onload = () => {
+        if (xhr.status === 201) resolve(JSON.parse(xhr.responseText));
+        else reject(new Error(JSON.parse(xhr.responseText).message || 'Erreur'));
+      };
+
+      xhr.onerror = () => reject(new Error('Erreur réseau'));
+      xhr.send(fd);
+    });
+
+    resultEl.className = 'upload-result';
+    resultEl.style.display = 'block';
+    document.getElementById('resultTitle').textContent = '✅ Vidéo uploadée avec succès !';
+    document.getElementById('resultMsg').textContent = `"${titre}" est maintenant disponible dans la catégorie ${catLabels[categorie] || categorie}.`;
+
+    showToast('Vidéo uploadée avec succès !', 'success');
+    this.reset();
+    document.getElementById('videoFileName').style.display = 'none';
+    document.getElementById('thumbPreview').style.display = 'none';
+    document.getElementById('categorie').innerHTML = '<option value="">— Choisir la discipline d\'abord —</option>';
+    loadVideos();
+
+  } catch (err) {
+    resultEl.className = 'upload-result error';
+    resultEl.style.display = 'block';
+    document.getElementById('resultTitle').textContent = '❌ Erreur lors de l\'upload';
+    document.getElementById('resultMsg').textContent = err.message;
+    showToast(err.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '✦ Uploader la vidéo';
+    progressWrap.style.display = 'none';
+    progressFill.style.width = '0%';
+  }
+});
+
+/* ---- LOAD VIDEOS ---- */
+async function loadVideos() {
+  const disc = document.getElementById('filterDiscipline').value;
+  const list = document.getElementById('videoList');
+  list.innerHTML = '<div class="empty-state"><div class="big">⏳</div><p>Chargement...</p></div>';
+
+  try {
+    const url = API + '/videos' + (disc ? '?discipline=' + disc : '');
+    const res = await fetch(url);
+    const data = await res.json();
+
+    if (!data.videos || data.videos.length === 0) {
+      list.innerHTML = '<div class="empty-state"><div class="big">🎬</div><p>Aucune vidéo uploadée pour l\'instant.</p></div>';
+      return;
+    }
+
+    list.innerHTML = data.videos.map(v => `
+      <div class="video-item" id="vi-${v._id}">
+        <div class="video-item-thumb">
+          ${v.thumbnailPath
+            ? `<img src="http://localhost:5000${v.thumbnailPath}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" onerror="this.parentNode.innerHTML='🎬'"/>`
+            : `<video src="http://localhost:5000${v.videoPath}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" muted></video>`}
+        </div>
+        <div class="video-item-info">
+          <strong>${v.titre}</strong>
+          <span>${v.formateur || 'ProForm'} · ${v.duree || '—'}</span>
+          <div class="video-item-badges">
+            <span class="vbadge">${discLabels[v.discipline] || v.discipline}</span>
+            <span class="vbadge">${catLabels[v.categorie] || v.categorie}</span>
+            <span class="vbadge">👁 ${v.vues} vues</span>
+          </div>
+        </div>
+        <button class="del-btn" onclick="deleteVideo('${v._id}')">🗑 Supprimer</button>
+      </div>
+    `).join('');
+
+  } catch (err) {
+    list.innerHTML = `<div class="empty-state"><div class="big">⚠️</div><p>Impossible de charger les vidéos.<br>Vérifiez que le serveur est démarré.</p></div>`;
+  }
+}
+
+async function deleteVideo(id) {
+  if (!confirm('Supprimer cette vidéo définitivement ?')) return;
+  try {
+    const res = await fetch(API + '/videos/' + id, { method: 'DELETE' });
+    const data = await res.json();
+    if (res.ok) {
+      document.getElementById('vi-' + id)?.remove();
+      showToast('Vidéo supprimée.', 'success');
+    } else {
+      showToast(data.message, 'error');
+    }
+  } catch {
+    showToast('Erreur réseau.', 'error');
+  }
+}
+
+// Charger au démarrage
+loadVideos();
+</script>
+</body>
+</html>

@@ -1,0 +1,1634 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ProForm — Admin</title>
+  <link rel="stylesheet" href="styles.css"/>
+  <style>
+    *{box-sizing:border-box}
+    body{background:#0a0a0a;min-height:100vh;margin:0}
+
+    /* LOGIN */
+    .login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
+    .login-box{background:#111;border:1px solid var(--dark-border);border-radius:20px;padding:48px 44px;width:100%;max-width:420px;text-align:center}
+    .login-box h1{font-family:'Playfair Display',serif;font-size:2rem;font-weight:900;margin-bottom:6px}
+    .login-box p{color:var(--gray);font-size:0.88rem;margin-bottom:32px}
+    .login-box .fg{text-align:left;margin-bottom:16px}
+    .login-box label{font-size:0.75rem;font-weight:600;color:rgba(255,255,255,0.45);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px}
+    .login-box input{width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--dark-border);border-radius:10px;padding:12px 16px;color:#fff;font-size:0.9rem;outline:none;transition:border-color .2s}
+    .login-box input:focus{border-color:var(--gold-dark)}
+    .login-err{background:rgba(231,76,60,.1);border:1px solid rgba(231,76,60,.3);border-radius:8px;padding:10px 14px;font-size:0.82rem;color:#e74c3c;margin-bottom:16px;display:none}
+
+    /* LAYOUT */
+    .admin-wrap{display:none;min-height:100vh}
+    .admin-wrap.show{display:flex}
+    .sidebar{width:230px;background:#0f0f0f;border-right:1px solid var(--dark-border);position:fixed;top:0;left:0;height:100vh;display:flex;flex-direction:column;z-index:100;overflow-y:auto}
+    .sb-logo{padding:24px 20px 18px;border-bottom:1px solid var(--dark-border)}
+    .sb-logo .lt{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:900}
+    .sb-logo .lt span{color:var(--gold)}
+    .sb-badge{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--gold);background:rgba(201,168,76,.1);padding:2px 7px;border-radius:4px;margin-top:5px;display:inline-block}
+    .sb-nav{flex:1;padding:12px 0}
+    .sb-label{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:rgba(255,255,255,.22);padding:12px 20px 4px}
+    .sb-item{display:flex;align-items:center;gap:11px;padding:10px 20px;color:rgba(255,255,255,.5);font-size:.85rem;font-weight:500;cursor:pointer;border-left:3px solid transparent;transition:all .2s;text-decoration:none;border:none;background:none;width:100%;text-align:left}
+    .sb-item:hover{color:#fff;background:rgba(255,255,255,.04)}
+    .sb-item.active{color:var(--gold);background:rgba(201,168,76,.07);border-left:3px solid var(--gold)}
+    .sb-icon{font-size:1rem;width:20px;text-align:center}
+    .sb-num{margin-left:auto;background:var(--gold);color:#000;font-size:.6rem;font-weight:800;padding:1px 6px;border-radius:8px;min-width:18px;text-align:center}
+    .sb-foot{padding:16px 20px;border-top:1px solid var(--dark-border);display:flex;flex-direction:column;gap:8px}
+    .sb-foot a{color:rgba(255,255,255,.4);font-size:.8rem;text-decoration:none;display:flex;align-items:center;gap:8px;transition:color .2s}
+    .sb-foot a:hover{color:#fff}
+    .sb-user{font-size:.78rem;color:rgba(255,255,255,.35);padding-bottom:4px;border-bottom:1px solid var(--dark-border);margin-bottom:4px}
+
+    /* MAIN */
+    .main{margin-left:230px;flex:1;padding:28px 32px 80px}
+    .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:30px}
+    .topbar h1{font-family:'Playfair Display',serif;font-size:1.7rem;font-weight:900}
+    .topbar-sub{font-size:.82rem;color:var(--gray);margin-top:3px}
+
+    /* STATS */
+    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:30px}
+    .sc{background:var(--dark-card);border:1px solid var(--dark-border);border-radius:14px;padding:20px;position:relative;overflow:hidden}
+    .sc::after{content:'';position:absolute;top:-20px;right:-20px;width:80px;height:80px;border-radius:50%;opacity:.08}
+    .sc.gold::after{background:#c9a84c}.sc.purple::after{background:#8a4aaa}.sc.teal::after{background:#1a8a6a}.sc.red::after{background:#c0392b}
+    .sc-icon{font-size:1.5rem;margin-bottom:8px}
+    .sc-val{font-family:'Playfair Display',serif;font-size:2rem;font-weight:900;line-height:1}
+    .sc-lbl{font-size:.75rem;color:var(--gray);margin-top:3px}
+
+    /* PANELS */
+    .panel{display:none}.panel.active{display:block}
+
+    /* CARD */
+    .card{background:var(--dark-card);border:1px solid var(--dark-border);border-radius:14px;overflow:hidden;margin-bottom:24px}
+    .card-hdr{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--dark-border)}
+    .card-hdr h3{font-family:'Playfair Display',serif;font-size:1rem;font-weight:700}
+    .card-body{padding:24px}
+
+    /* TABLE */
+    table{width:100%;border-collapse:collapse}
+    thead th{font-size:.7rem;text-transform:uppercase;letter-spacing:1px;color:var(--gray);padding:10px 16px;text-align:left;border-bottom:1px solid var(--dark-border);font-weight:600;white-space:nowrap}
+    tbody td{padding:12px 16px;font-size:.83rem;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle}
+    tbody tr:last-child td{border-bottom:none}
+    tbody tr:hover td{background:rgba(255,255,255,.02)}
+
+    /* BADGES */
+    .badge{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:3px 8px;border-radius:5px;white-space:nowrap}
+    .bg-gold{background:rgba(201,168,76,.15);color:var(--gold)}
+    .bg-green{background:rgba(39,174,96,.15);color:#27ae60}
+    .bg-red{background:rgba(231,76,60,.15);color:#e74c3c}
+    .bg-blue{background:rgba(52,152,219,.15);color:#3498db}
+    .bg-gray{background:rgba(255,255,255,.08);color:var(--gray)}
+    .bg-purple{background:rgba(138,74,170,.15);color:#9b59b6}
+
+    /* ACTION BUTTONS */
+    .acts{display:flex;gap:6px;flex-wrap:wrap}
+    .btn-act{border:none;padding:5px 10px;border-radius:6px;font-size:.72rem;cursor:pointer;font-weight:600;transition:all .2s}
+    .btn-view{background:rgba(201,168,76,.1);color:var(--gold)}
+    .btn-edit{background:rgba(52,152,219,.1);color:#3498db}
+    .btn-del{background:rgba(231,76,60,.1);color:#e74c3c}
+    .btn-role{background:rgba(39,174,96,.1);color:#27ae60}
+    .btn-act:hover{opacity:.8;transform:scale(1.05)}
+
+    /* FORM */
+    .fg{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+    .fg label{font-size:.73rem;font-weight:600;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.5px}
+    .fg input,.fg select,.fg textarea{background:rgba(255,255,255,.05);border:1px solid var(--dark-border);border-radius:9px;padding:10px 13px;color:#fff;font-family:'Inter',sans-serif;font-size:.87rem;outline:none;transition:border-color .2s;width:100%}
+    .fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--gold-dark)}
+    .fg select option{background:#1a1a1a}
+    .fg textarea{resize:vertical;min-height:75px}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+
+    /* DROP ZONE */
+    .dz{border:2px dashed var(--dark-border);border-radius:10px;padding:28px 16px;text-align:center;cursor:pointer;position:relative;transition:all .3s}
+    .dz:hover,.dz.over{border-color:var(--gold);background:rgba(201,168,76,.04)}
+    .dz input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+    .dz-ico{font-size:2rem;margin-bottom:6px}
+    .dz p{font-size:.8rem;color:var(--gray)}
+    .file-tag{margin-top:8px;background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.3);border-radius:7px;padding:6px 10px;font-size:.78rem;color:var(--gold);display:none}
+    .thumb-prev{width:100%;max-height:130px;object-fit:cover;border-radius:8px;display:none;margin-top:10px}
+
+    /* PROGRESS */
+    .prog-wrap{display:none;margin-top:14px}
+    .prog-bg{background:rgba(255,255,255,.07);border-radius:50px;height:7px;overflow:hidden}
+    .prog-fill{height:100%;background:var(--gradient);border-radius:50px;width:0%;transition:width .3s}
+    .prog-txt{font-size:.76rem;color:var(--gray);margin-top:5px;text-align:center}
+
+    /* MSG */
+    .msg{display:none;padding:12px 16px;border-radius:9px;font-size:.83rem;margin-top:12px}
+    .msg.ok{background:rgba(39,174,96,.1);border:1px solid rgba(39,174,96,.3);color:#27ae60}
+    .msg.err{background:rgba(231,76,60,.1);border:1px solid rgba(231,76,60,.3);color:#e74c3c}
+
+    /* MODAL */
+    .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:500;align-items:center;justify-content:center;padding:20px}
+    .modal.show{display:flex}
+    .modal-box{background:#111;border:1px solid var(--dark-border);border-radius:18px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto}
+    .modal-hdr{display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid var(--dark-border);position:sticky;top:0;background:#111;z-index:1}
+    .modal-hdr h3{font-family:'Playfair Display',serif;font-size:1rem;font-weight:700}
+    .modal-body{padding:24px}
+    .modal-close{background:rgba(255,255,255,.08);border:none;color:#fff;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:.95rem;display:flex;align-items:center;justify-content:center}
+
+    /* EMPTY STATE */
+    .empty{text-align:center;padding:40px;color:var(--gray);font-size:.85rem}
+    .empty span{font-size:2.5rem;display:block;margin-bottom:10px}
+
+    /* DISC TABS */
+    .disc-tab{background:rgba(255,255,255,.06);border:1px solid var(--dark-border);border-radius:8px;color:rgba(255,255,255,.5);font-size:.78rem;font-weight:600;padding:6px 14px;cursor:pointer;transition:all .2s}
+    .disc-tab:hover{color:#fff;background:rgba(255,255,255,.1)}
+    .disc-tab.active{background:rgba(201,168,76,.15);border-color:var(--gold);color:var(--gold)}
+    /* DOC SUMMARY CARDS */
+    .doc-card{background:var(--dark-card);border:1px solid var(--dark-border);border-radius:12px;padding:16px 18px}
+    .doc-card-icon{font-size:1.6rem;margin-bottom:6px}
+    .doc-card-title{font-size:.78rem;font-weight:700;color:var(--gold);margin-bottom:4px}
+    .doc-card-count{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:900;line-height:1}
+    .doc-card-sub{font-size:.7rem;color:var(--gray);margin-top:4px}
+
+    @media(max-width:900px){
+      .sidebar{width:56px}
+      .sb-logo .lt,.sb-label,.sb-item span,.sb-user,.sb-badge{display:none}
+      .sb-item{justify-content:center;padding:14px}
+      .main{margin-left:56px;padding:20px 16px 60px}
+      .stats{grid-template-columns:repeat(2,1fr)}
+      .form-row{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════ LOGIN ══════════════ -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-box">
+    <div style="font-size:3rem;margin-bottom:12px">⚙️</div>
+    <h1>PRO<span style="color:var(--gold)">FORM</span></h1>
+    <p>Espace Administrateur — Connexion requise</p>
+    <div class="login-err" id="loginErr"></div>
+    <div class="fg"><label>Mot de passe Admin</label>
+      <input type="password" id="loginPass" placeholder="••••••••" onkeypress="if(event.key==='Enter')doLogin()"/>
+    </div>
+    <button class="btn btn-gold btn-full" style="margin-top:8px" onclick="doLogin()">Entrer dans l'Admin →</button>
+    <p style="margin-top:16px;font-size:.72rem;color:rgba(255,255,255,0.2)">Mot de passe : Admin@2026</p>
+    <p style="margin-top:8px;font-size:.75rem;color:var(--gray)">
+      <a href="index.html" style="color:var(--gray)">← Retour au site</a>
+    </p>
+  </div>
+</div>
+
+<!-- ══════════════ ADMIN WRAP ══════════════ -->
+<div class="admin-wrap" id="adminWrap">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sb-logo">
+      <div class="lt"><svg width="22" height="22" viewBox="0 0 26 26" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;vertical-align:middle"><polygon points="13,1.5 23.1,7.5 23.1,18.5 13,24.5 2.9,18.5 2.9,7.5" fill="rgba(201,168,76,0.12)" stroke="#C9A84C" stroke-width="1.5"/><text x="13" y="17.5" text-anchor="middle" font-size="9.5" font-weight="900" fill="#C9A84C" font-family="Georgia,serif">PF</text></svg> PRO<span>FORM</span></div>
+      <div class="sb-badge">⚙️ Admin</div>
+    </div>
+    <nav class="sb-nav">
+      <div class="sb-label">Tableau de bord</div>
+      <button class="sb-item active" onclick="nav('dashboard',this)"><span class="sb-icon">📊</span><span>Vue d'ensemble</span></button>
+
+      <div class="sb-label">Contenu</div>
+      <button class="sb-item" onclick="nav('videos',this)"><span class="sb-icon">🎬</span><span>Vidéos</span><span class="sb-num" id="nb-v">0</span></button>
+      <button class="sb-item" onclick="nav('courses',this)"><span class="sb-icon">📚</span><span>Programmes</span><span class="sb-num" id="nb-c">0</span></button>
+
+      <div class="sb-label">Partenaires & Membres</div>
+      <button class="sb-item" onclick="nav('instituts',this)"><span class="sb-icon">🏛️</span><span>Instituts</span><span class="sb-num" id="nb-i">0</span></button>
+      <button class="sb-item" onclick="nav('users',this)"><span class="sb-icon">👥</span><span>Utilisateurs</span><span class="sb-num" id="nb-u">0</span><span class="sb-num" id="nb-pending" style="background:#e74c3c;display:none" title="En attente d'approbation">0</span></button>
+
+      <div class="sb-label">Communication</div>
+      <button class="sb-item" onclick="nav('news',this)"><span class="sb-icon">📰</span><span>Actualités</span><span class="sb-num" id="nb-news">0</span></button>
+
+      <div class="sb-label">Paramètres</div>
+      <button class="sb-item" onclick="nav('settings',this)"><span class="sb-icon">⚙️</span><span>Site & Contact</span></button>
+    </nav>
+    <div class="sb-foot">
+      <div class="sb-user" id="sbUserInfo">Admin</div>
+      <a href="index.html"><span>🏠</span><span>Voir le site</span></a>
+      <a href="#" onclick="logout()"><span>🚪</span><span>Déconnexion</span></a>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <h1 id="pageTitle">Vue d'ensemble</h1>
+        <div class="topbar-sub" id="pageSub">Bienvenue dans votre espace d'administration</div>
+      </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats">
+      <div class="sc gold"><div class="sc-icon">🎬</div><div class="sc-val" id="sv-v">—</div><div class="sc-lbl">Vidéos</div></div>
+      <div class="sc purple"><div class="sc-icon">📚</div><div class="sc-val" id="sv-c">—</div><div class="sc-lbl">Programmes</div></div>
+      <div class="sc teal"><div class="sc-icon">🏛️</div><div class="sc-val" id="sv-i">—</div><div class="sc-lbl">Instituts</div></div>
+      <div class="sc red"><div class="sc-icon">👥</div><div class="sc-val" id="sv-u">—</div><div class="sc-lbl">Utilisateurs</div></div>
+    </div>
+
+    <!-- ══ DASHBOARD ══ -->
+    <div class="panel active" id="panel-dashboard">
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px">
+        <div class="card" style="cursor:pointer" onclick="nav('videos',document.querySelector('[onclick*=videos]'))">
+          <div class="card-body" style="display:flex;align-items:center;gap:18px;padding:24px">
+            <div style="font-size:2.5rem">🎬</div>
+            <div><div style="font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700">Gérer les Vidéos</div><div style="font-size:.8rem;color:var(--gray);margin-top:4px">Uploader, modifier, supprimer</div></div>
+          </div>
+        </div>
+        <div class="card" style="cursor:pointer" onclick="nav('courses',document.querySelector('[onclick*=courses]'))">
+          <div class="card-body" style="display:flex;align-items:center;gap:18px;padding:24px">
+            <div style="font-size:2.5rem">📚</div>
+            <div><div style="font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700">Gérer les Programmes</div><div style="font-size:.8rem;color:var(--gray);margin-top:4px">Créer et modifier les cours</div></div>
+          </div>
+        </div>
+        <div class="card" style="cursor:pointer" onclick="nav('instituts',document.querySelector('[onclick*=instituts]'))">
+          <div class="card-body" style="display:flex;align-items:center;gap:18px;padding:24px">
+            <div style="font-size:2.5rem">🏛️</div>
+            <div><div style="font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700">Gérer les Instituts</div><div style="font-size:.8rem;color:var(--gray);margin-top:4px">Ajouter, modifier, supprimer</div></div>
+          </div>
+        </div>
+        <div class="card" style="cursor:pointer" onclick="nav('users',document.querySelector('[onclick*=users]'))">
+          <div class="card-body" style="display:flex;align-items:center;gap:18px;padding:24px">
+            <div style="font-size:2.5rem">👥</div>
+            <div><div style="font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700">Gérer les Utilisateurs</div><div style="font-size:.8rem;color:var(--gray);margin-top:4px">Rôles, accès, approbations</div></div>
+          </div>
+        </div>
+        <div class="card" style="cursor:pointer;grid-column:1/-1" onclick="nav('news',document.querySelector('[onclick*=news]'))">
+          <div class="card-body" style="display:flex;align-items:center;gap:18px;padding:24px">
+            <div style="font-size:2.5rem">📰</div>
+            <div><div style="font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700">Gérer les Actualités</div><div style="font-size:.8rem;color:var(--gray);margin-top:4px">Annonces, événements, articles et contacts — affichés sur la plateforme</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ VIDÉOS ══ -->
+    <div class="panel" id="panel-videos">
+
+      <!-- Upload -->
+      <div class="card">
+        <div class="card-hdr"><h3>📤 Uploader une vidéo</h3></div>
+        <div class="card-body">
+          <div class="form-row">
+            <div class="fg"><label>Titre *</label><input id="vTitre" placeholder="Titre de la vidéo"/></div>
+            <div class="fg"><label>Formateur</label><input id="vFormateur" placeholder="Nom du formateur"/></div>
+          </div>
+          <div class="form-row">
+            <div class="fg"><label>Discipline *</label>
+              <select id="vDisc" onchange="fillVCat()">
+                <option value="">— Choisir —</option>
+                <option value="scene">🎭 Scène & Théâtre</option>
+                <option value="cinema">🎬 Cinéma</option>
+                <option value="art-plastique">🎨 Art Plastique</option>
+                <option value="musique">🎵 Musique</option>
+              </select>
+            </div>
+            <div class="fg"><label>Catégorie *</label>
+              <select id="vCat"><option value="">— Choisir discipline —</option></select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="fg"><label>Durée (ex: 45 min)</label><input id="vDuree" placeholder="45 min"/></div>
+            <div class="fg"><label>Description</label><input id="vDesc" placeholder="Courte description"/></div>
+          </div>
+          <div class="form-row">
+            <div class="fg">
+              <label>Fichier vidéo * (MP4/MOV/AVI — max 2 Go)</label>
+              <div class="dz" id="dzV">
+                <input type="file" id="vFile" accept="video/*" onchange="selV(this)"/>
+                <div class="dz-ico">🎬</div>
+                <p>Glissez la vidéo ici ou <strong>cliquez</strong></p>
+                <div class="file-tag" id="vTag"></div>
+              </div>
+            </div>
+            <div class="fg">
+              <label>Miniature (JPG/PNG — optionnel)</label>
+              <div class="dz" id="dzT" style="padding:18px">
+                <input type="file" id="tFile" accept="image/*" onchange="selT(this)"/>
+                <div class="dz-ico" style="font-size:1.6rem">🖼️</div>
+                <p>Image de couverture</p>
+              </div>
+              <img class="thumb-prev" id="tPrev" src="" alt=""/>
+            </div>
+          </div>
+          <div class="prog-wrap" id="vProg"><div class="prog-bg"><div class="prog-fill" id="vFill"></div></div><div class="prog-txt" id="vTxt"></div></div>
+          <div class="msg" id="vMsg"></div>
+          <button class="btn btn-gold" style="margin-top:12px;width:100%" onclick="uploadVid()">✦ Uploader la vidéo</button>
+        </div>
+      </div>
+
+      <!-- Liste vidéos -->
+      <div class="card">
+        <div class="card-hdr">
+          <h3>🎬 Vidéos enregistrées</h3>
+          <div style="display:flex;gap:8px;align-items:center">
+            <select id="filtDisc" style="background:rgba(255,255,255,.05);border:1px solid var(--dark-border);border-radius:7px;padding:5px 10px;color:#fff;font-size:.78rem" onchange="loadVids()">
+              <option value="">Toutes</option>
+              <option value="scene">Scène</option>
+              <option value="cinema">Cinéma</option>
+              <option value="art-plastique">Art Plastique</option>
+              <option value="musique">Musique</option>
+            </select>
+            <button class="btn-act btn-edit" onclick="loadVids()">↺ Actualiser</button>
+            <button class="btn-act" style="background:rgba(201,168,76,.15);color:var(--gold);border:1px solid rgba(201,168,76,.3)" onclick="syncAllLocalVids()">📤 Sync locales → serveur</button>
+          </div>
+        </div>
+        <div id="localVidWarn" style="display:none;margin:8px 16px;padding:10px 14px;background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.25);border-radius:8px;font-size:.8rem;color:var(--gold)">
+          ⚠️ Des vidéos sont stockées <strong>localement</strong> dans votre navigateur — elles ne sont <strong>pas visibles</strong> sur le site public. Cliquez <strong>📤 Sync</strong> pour les envoyer au serveur.
+        </div>
+        <div id="vidsTbl"><div class="empty"><span>⏳</span>Chargement...</div></div>
+      </div>
+    </div>
+
+    <!-- ══ PROGRAMMES ══ -->
+    <div class="panel" id="panel-courses">
+      <!-- Filtres discipline + sous-catégorie -->
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px">
+        <div style="display:flex;gap:6px;flex-wrap:wrap" id="discTabs">
+          <button class="disc-tab active" onclick="filterCourses('',this)">Tous</button>
+          <button class="disc-tab" onclick="filterCourses('scene',this)">🎭 Scène & Théâtre</button>
+          <button class="disc-tab" onclick="filterCourses('cinema',this)">🎬 Cinéma</button>
+          <button class="disc-tab" onclick="filterCourses('art-plastique',this)">🎨 Art Plastique</button>
+          <button class="disc-tab" onclick="filterCourses('musique',this)">🎵 Musique</button>
+        </div>
+        <div style="display:flex;gap:6px">
+          <select id="filtSousCat" style="background:rgba(255,255,255,.05);border:1px solid var(--dark-border);border-radius:7px;padding:5px 10px;color:#fff;font-size:.78rem" onchange="loadCourses()">
+            <option value="">Toutes sous-catégories</option>
+          </select>
+          <button class="btn-act btn-role" onclick="openModal('mCourse')">+ Nouveau</button>
+        </div>
+      </div>
+      <!-- Résumé par discipline -->
+      <div id="coursesDocSummary" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px"></div>
+      <div class="card">
+        <div class="card-hdr">
+          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+            <h3 id="coursesPanelTitle">📚 Tous les programmes</h3>
+            <span id="coursesCount" style="font-size:.78rem;color:var(--gray)"></span>
+          </div>
+          <button class="btn-act" style="background:rgba(201,168,76,.15);color:var(--gold);border:1px solid rgba(201,168,76,.3)" onclick="syncAllLocalCourses()">📤 Sync locales → serveur</button>
+        </div>
+        <div id="localCourseWarn" style="display:none;margin:8px 16px 0;padding:10px 14px;background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.25);border-radius:8px;font-size:.8rem;color:var(--gold)">
+          ⚠️ Des formations sont stockées <strong>localement</strong> — non visibles sur le site. Cliquez <strong>📤 Sync</strong> pour les envoyer au serveur.
+        </div>
+        <div id="coursesTbl"><div class="empty"><span>⏳</span>Chargement...</div></div>
+      </div>
+    </div>
+
+    <!-- ══ INSTITUTS ══ -->
+    <div class="panel" id="panel-instituts">
+      <!-- Filtres discipline + type -->
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px">
+        <div style="display:flex;gap:6px;flex-wrap:wrap" id="instDiscTabs">
+          <button class="disc-tab active" onclick="filterInsts('','',this)">Tous</button>
+          <button class="disc-tab" onclick="filterInsts('scene','',this)">🎭 Scène</button>
+          <button class="disc-tab" onclick="filterInsts('cinema','',this)">🎬 Cinéma</button>
+          <button class="disc-tab" onclick="filterInsts('art-plastique','',this)">🎨 Art Plastique</button>
+          <button class="disc-tab" onclick="filterInsts('musique','',this)">🎵 Musique</button>
+        </div>
+        <div style="display:flex;gap:6px">
+          <select id="filtInstType" style="background:rgba(255,255,255,.05);border:1px solid var(--dark-border);border-radius:7px;padding:5px 10px;color:#fff;font-size:.78rem" onchange="loadInsts()">
+            <option value="">Tous les types</option>
+            <option value="Officiel">Officiel</option>
+            <option value="Certifié">Certifié</option>
+            <option value="Partenaire">Partenaire</option>
+            <option value="International">International</option>
+            <option value="Festival">Festival</option>
+            <option value="Galerie">Galerie</option>
+          </select>
+          <button class="btn-act btn-role" onclick="openModal('mInst')">+ Nouvel institut</button>
+        </div>
+      </div>
+      <!-- Résumé par discipline -->
+      <div id="instsDocSummary" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px"></div>
+      <div class="card">
+        <div class="card-hdr"><h3 id="instsPanelTitle">🏛️ Tous les instituts</h3><span id="instsCount" style="font-size:.78rem;color:var(--gray)"></span></div>
+        <div id="instsTbl"><div class="empty"><span>⏳</span>Chargement...</div></div>
+      </div>
+    </div>
+
+    <!-- ══ UTILISATEURS ══ -->
+    <div class="panel" id="panel-users">
+      <!-- Résumé par rôle -->
+      <div id="usersDocSummary" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px"></div>
+      <div class="card">
+        <div class="card-hdr">
+          <h3>👥 Utilisateurs inscrits</h3>
+          <div style="display:flex;gap:8px">
+            <select id="filtRole" style="background:rgba(255,255,255,.05);border:1px solid var(--dark-border);border-radius:7px;padding:5px 10px;color:#fff;font-size:.78rem" onchange="loadUsers()">
+              <option value="">Tous les rôles</option>
+              <option value="etudiant">Étudiants</option>
+              <option value="artiste">Artistes</option>
+              <option value="formateur">Formateurs</option>
+              <option value="admin">Admins</option>
+            </select>
+            <button class="btn-act btn-edit" onclick="loadUsers()">↺ Actualiser</button>
+          </div>
+        </div>
+        <div id="usersTbl"><div class="empty"><span>⏳</span>Chargement...</div></div>
+      </div>
+    </div>
+
+    <!-- ══ ACTUALITÉS ══ -->
+    <div class="panel" id="panel-news">
+      <!-- Formulaire ajout -->
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-hdr"><h3 id="newsPanelTitle">📰 Nouvelle actualité</h3></div>
+        <div class="card-body">
+          <input type="hidden" id="nId"/>
+          <div class="fg"><label>Titre *</label><input id="nTitre" placeholder="Titre de l'actualité"/></div>
+          <div class="form-row">
+            <div class="fg"><label>Type *</label>
+              <select id="nType">
+                <option value="Annonce">📣 Annonce</option>
+                <option value="Événement">🎪 Événement</option>
+                <option value="Article">📰 Article</option>
+                <option value="Offre">🎯 Offre de formation</option>
+              </select>
+            </div>
+            <div class="fg"><label>Discipline (optionnel)</label>
+              <select id="nDisc">
+                <option value="">Toutes disciplines</option>
+                <option value="scene">🎭 Scène & Théâtre</option>
+                <option value="cinema">🎬 Cinéma</option>
+                <option value="art-plastique">🎨 Art Plastique</option>
+                <option value="musique">🎵 Musique</option>
+              </select>
+            </div>
+          </div>
+          <div class="fg"><label>Contenu *</label><textarea id="nContenu" placeholder="Contenu de l'actualité..." style="min-height:100px"></textarea></div>
+          <div class="form-row">
+            <div class="fg"><label>Image URL (optionnel)</label><input id="nImage" placeholder="https://…"/></div>
+            <div class="fg"><label>📞 Contact (téléphone / email)</label><input id="nContact" placeholder="Ex: 0550 123 456 — contact@proform.com"/></div>
+          </div>
+          <div class="msg" id="nMsg"></div>
+          <button class="btn btn-gold" style="width:100%;margin-top:8px" onclick="saveNews()">💾 Publier l'actualité</button>
+        </div>
+      </div>
+      <!-- Liste actualités -->
+      <div class="card">
+        <div class="card-hdr">
+          <h3>📋 Actualités publiées</h3>
+          <div style="display:flex;gap:6px">
+            <select id="filtNewsType" style="background:rgba(255,255,255,.05);border:1px solid var(--dark-border);border-radius:7px;padding:5px 10px;color:#fff;font-size:.78rem" onchange="loadNews()">
+              <option value="">Tous types</option>
+              <option value="Annonce">Annonces</option>
+              <option value="Événement">Événements</option>
+              <option value="Article">Articles</option>
+              <option value="Offre">Offres</option>
+            </select>
+            <button class="btn-act btn-edit" onclick="loadNews()">↺ Actualiser</button>
+          </div>
+        </div>
+        <div id="newsTbl"><div class="empty"><span>⏳</span>Chargement...</div></div>
+      </div>
+    </div>
+
+    <!-- ══ PARAMÈTRES DU SITE ══ -->
+    <div class="panel" id="panel-settings">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+
+        <!-- Coordonnées -->
+        <div class="card">
+          <div class="card-hdr"><h3>📞 Coordonnées de contact</h3></div>
+          <div class="card-body">
+            <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">Affichées dans le footer et la section Contact du site.</p>
+            <div class="fg"><label>📞 Téléphone</label><input id="cfgTel" placeholder="+213 550 00 00 00"/></div>
+            <div class="fg"><label>✉️ Email</label><input id="cfgEmail" placeholder="contact@proform.com"/></div>
+            <div class="fg"><label>📍 Adresse</label><input id="cfgAdresse" placeholder="Alger, Algérie"/></div>
+          </div>
+        </div>
+
+        <!-- Réseaux sociaux -->
+        <div class="card">
+          <div class="card-hdr"><h3>🌐 Réseaux sociaux</h3></div>
+          <div class="card-body">
+            <div class="fg"><label>📘 Facebook (URL)</label><input id="cfgFb" placeholder="https://facebook.com/proform"/></div>
+            <div class="fg"><label>📸 Instagram (URL)</label><input id="cfgIg" placeholder="https://instagram.com/proform"/></div>
+            <div class="fg"><label>▶️ YouTube (URL)</label><input id="cfgYt" placeholder="https://youtube.com/@proform"/></div>
+            <div class="fg"><label>💼 LinkedIn (URL)</label><input id="cfgLi" placeholder="https://linkedin.com/company/proform"/></div>
+          </div>
+        </div>
+
+        <!-- Texte Hero -->
+        <div class="card" style="grid-column:1/-1">
+          <div class="card-hdr"><h3>🖊️ Texte de la page d'accueil</h3></div>
+          <div class="card-body">
+            <p style="font-size:.8rem;color:var(--gray);margin-bottom:14px">Ces textes apparaissent dans la section principale de la page d'accueil.</p>
+            <div class="fg"><label>Titre principal</label><input id="cfgHeroTitre" placeholder="Votre carrière artistique commence ici."/></div>
+            <div class="fg"><label>Sous-titre / Description</label><textarea id="cfgHeroSub" placeholder="Rejoignez des milliers d'artistes..." style="min-height:70px"></textarea></div>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:8px">
+              <div><label style="font-size:.7rem;color:rgba(255,255,255,.4);display:block;margin-bottom:4px">Stat 1 — Chiffre</label><input id="cfgS1c" placeholder="500+"/></div>
+              <div><label style="font-size:.7rem;color:rgba(255,255,255,.4);display:block;margin-bottom:4px">Stat 1 — Libellé</label><input id="cfgS1l" placeholder="Cours en arts vivants"/></div>
+              <div><label style="font-size:.7rem;color:rgba(255,255,255,.4);display:block;margin-bottom:4px">Stat 2 — Chiffre</label><input id="cfgS2c" placeholder="50 000+"/></div>
+              <div><label style="font-size:.7rem;color:rgba(255,255,255,.4);display:block;margin-bottom:4px">Stat 2 — Libellé</label><input id="cfgS2l" placeholder="Artistes membres"/></div>
+              <div><label style="font-size:.7rem;color:rgba(255,255,255,.4);display:block;margin-bottom:4px">Stat 3 — Chiffre</label><input id="cfgS3c" placeholder="12"/></div>
+              <div><label style="font-size:.7rem;color:rgba(255,255,255,.4);display:block;margin-bottom:4px">Stat 3 — Libellé</label><input id="cfgS3l" placeholder="Instituts partenaires"/></div>
+              <div><label style="font-size:.7rem;color:rgba(255,255,255,.4);display:block;margin-bottom:4px">Stat 4 — Chiffre</label><input id="cfgS4c" placeholder="100%"/></div>
+              <div><label style="font-size:.7rem;color:rgba(255,255,255,.4);display:block;margin-bottom:4px">Stat 4 — Libellé</label><input id="cfgS4l" placeholder="Certifications reconnues"/></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="msg" id="cfgMsg" style="margin-top:12px"></div>
+      <button class="btn btn-gold" style="margin-top:12px;min-width:220px" onclick="saveSiteConfig()">💾 Sauvegarder tous les paramètres</button>
+    </div>
+
+  </main>
+</div>
+
+<!-- ══════ MODAL : Nouveau/Modifier Programme ══════ -->
+<div class="modal" id="mCourse">
+  <div class="modal-box">
+    <div class="modal-hdr">
+      <h3 id="mCourseTitle">📚 Nouveau Programme</h3>
+      <button class="modal-close" onclick="closeModal('mCourse')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="cId"/>
+      <div class="fg"><label>Titre *</label><input id="cTitre" placeholder="Titre du programme"/></div>
+      <div class="form-row">
+        <div class="fg"><label>Discipline *</label>
+          <select id="cDisc">
+            <option value="scene">🎭 Scène & Théâtre</option>
+            <option value="cinema">🎬 Cinéma</option>
+            <option value="art-plastique">🎨 Art Plastique</option>
+            <option value="musique">🎵 Musique</option>
+          </select>
+        </div>
+        <div class="fg"><label>Sous-catégorie</label>
+          <select id="cSousCat">
+            <option value="performance">Performance</option>
+            <option value="ecriture">Écriture</option>
+            <option value="scenographie">Scénographie</option>
+            <option value="mise-en-scene">Mise en scène</option>
+            <option value="realisation">Réalisation</option>
+            <option value="peinture">Peinture</option>
+            <option value="composition">Composition</option>
+            <option value="autre">Autre</option>
+          </select>
+        </div>
+      </div>
+      <div class="fg"><label>Description *</label><textarea id="cDesc" placeholder="Décrivez le programme..."></textarea></div>
+      <div class="form-row">
+        <div class="fg"><label>Durée (heures) *</label><input type="number" id="cDuree" placeholder="40"/></div>
+        <div class="fg"><label>Niveau</label>
+          <select id="cNiveau">
+            <option value="tous">Tous niveaux</option>
+            <option value="debutant">Débutant</option>
+            <option value="intermediaire">Intermédiaire</option>
+            <option value="avance">Avancé</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="fg"><label>Formateur</label><input id="cFormateur" placeholder="Nom du formateur"/></div>
+        <div class="fg"><label>Titre du formateur</label><input id="cFormateurTitre" placeholder="Ex: Directeur artistique"/></div>
+      </div>
+      <div class="fg"><label>Tags (séparés par des virgules)</label><input id="cTags" placeholder="théâtre, performance, scène"/></div>
+      <div class="msg" id="cMsg"></div>
+      <button class="btn btn-gold" style="width:100%;margin-top:8px" onclick="saveCourse()">💾 Enregistrer le programme</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ MODAL : Nouvel/Modifier Institut ══════ -->
+<div class="modal" id="mInst">
+  <div class="modal-box">
+    <div class="modal-hdr">
+      <h3 id="mInstTitle">🏛️ Nouvel Institut</h3>
+      <button class="modal-close" onclick="closeModal('mInst')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="iId"/>
+      <div class="fg"><label>Nom de l'institut *</label><input id="iNom" placeholder="Ex: Institut National des Arts Dramatiques"/></div>
+      <div class="fg"><label>Localisation</label><input id="iLocalisation" placeholder="Ex: Alger — Rue Didouche Mourad"/></div>
+      <div class="form-row">
+        <div class="fg"><label>Téléphone</label><input id="iTelephone" placeholder="Ex: 021 63 47 89"/></div>
+        <div class="fg"><label>Email</label><input id="iEmail" placeholder="Ex: contact@institut.dz"/></div>
+      </div>
+      <div class="form-row">
+        <div class="fg"><label>Discipline</label>
+          <select id="iDisc">
+            <option value="toutes">Toutes</option>
+            <option value="scene">Scène & Théâtre</option>
+            <option value="cinema">Cinéma</option>
+            <option value="art-plastique">Art Plastique</option>
+            <option value="musique">Musique</option>
+          </select>
+        </div>
+        <div class="fg"><label>Type</label>
+          <select id="iType">
+            <option value="Officiel">Officiel</option>
+            <option value="Certifié">Certifié</option>
+            <option value="Partenaire">Partenaire</option>
+            <option value="International">International</option>
+            <option value="Festival">Festival</option>
+            <option value="Galerie">Galerie</option>
+          </select>
+        </div>
+      </div>
+      <div class="fg"><label>Spécialités</label><input id="iSpec" placeholder="Ex: Théâtre, Scénographie, Mise en scène"/></div>
+      <div class="form-row">
+        <div class="fg"><label>Icône (emoji)</label><input id="iIcone" placeholder="🏛️" maxlength="5"/></div>
+        <div class="fg"><label>Couleur</label>
+          <select id="iCouleur">
+            <option value="gold">Or</option>
+            <option value="purple">Violet</option>
+            <option value="teal">Sarcelle</option>
+            <option value="blue">Bleu</option>
+            <option value="red">Rouge</option>
+            <option value="green">Vert</option>
+            <option value="orange">Orange</option>
+          </select>
+        </div>
+      </div>
+      <div class="msg" id="iMsg"></div>
+      <button class="btn btn-gold" style="width:100%;margin-top:8px" onclick="saveInst()">💾 Enregistrer l'institut</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ MODAL : Changer rôle utilisateur ══════ -->
+<div class="modal" id="mRole">
+  <div class="modal-box">
+    <div class="modal-hdr">
+      <h3>👤 Modifier le rôle</h3>
+      <button class="modal-close" onclick="closeModal('mRole')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="rUserId"/>
+      <div class="fg"><label>Utilisateur</label><input id="rUserName" readonly style="opacity:.6"/></div>
+      <div class="fg"><label>Nouveau rôle *</label>
+        <select id="rRole">
+          <option value="etudiant">Étudiant</option>
+          <option value="artiste">Artiste</option>
+          <option value="formateur">Formateur</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+      <div class="msg" id="rMsg"></div>
+      <button class="btn btn-gold" style="width:100%;margin-top:8px" onclick="saveRole()">💾 Changer le rôle</button>
+    </div>
+  </div>
+</div>
+
+<script src="store.js"></script>
+<script>
+const API = 'http://localhost:5000';
+let TOKEN = localStorage.getItem('proform_admin_token') || '';
+
+/* ══════ LOGIN ══════ */
+const ADMIN_PASS  = 'Admin@2026';
+const ADMIN_EMAIL = 'admin@proform.com';
+
+async function doLogin() {
+  const pass = document.getElementById('loginPass').value;
+  const err  = document.getElementById('loginErr');
+  err.style.display = 'none';
+
+  if (!pass) { err.textContent = '⚠️ Entrez le mot de passe.'; err.style.display = 'block'; return; }
+
+  if (pass !== ADMIN_PASS) {
+    err.textContent = '❌ Mot de passe incorrect.';
+    err.style.display = 'block';
+    document.getElementById('loginPass').value = '';
+    return;
+  }
+
+  // Essayer de récupérer le JWT via l'API (nécessaire pour les routes protégées)
+  try {
+    const r = await fetch(API + '/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: ADMIN_EMAIL, password: ADMIN_PASS })
+    });
+    const d = await r.json();
+    if (r.ok && d.token) {
+      TOKEN = d.token;
+      localStorage.setItem('proform_admin_token', TOKEN);
+    }
+  } catch (_) {
+    // Backend non disponible — mode local uniquement
+  }
+
+  localStorage.setItem('proform_admin_ok', '1');
+  document.getElementById('sbUserInfo').textContent = 'Administrateur';
+  showAdmin();
+}
+
+function showAdmin() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('adminWrap').classList.add('show');
+  loadAll();
+}
+
+function logout() {
+  localStorage.removeItem('proform_admin_ok');
+  localStorage.removeItem('proform_admin_token');
+  TOKEN = '';
+  document.getElementById('adminWrap').classList.remove('show');
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('loginPass').value = '';
+}
+
+function authH() { return { 'Authorization': 'Bearer ' + TOKEN, 'Content-Type': 'application/json' }; }
+
+/* ══════ NAV ══════ */
+const titles = {
+  dashboard:  ['Vue d\'ensemble','Tableau de bord ProForm'],
+  videos:     ['Vidéos de formation','Uploader et gérer les vidéos par discipline et catégorie'],
+  courses:    ['Programmes de formation','Créer et gérer les programmes, modules et cours'],
+  instituts:  ['Instituts partenaires','Gérer les instituts affichés sur chaque page de discipline'],
+  users:      ['Utilisateurs','Gérer les comptes, rôles, approbations et accès des membres'],
+  news:       ['Actualités','Publier et gérer les annonces, événements et articles'],
+};
+
+function nav(id, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sb-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  if (btn) btn.classList.add('active');
+  if (titles[id]) {
+    document.getElementById('pageTitle').textContent = titles[id][0];
+    document.getElementById('pageSub').textContent   = titles[id][1];
+  }
+  if (id === 'videos')   loadVids();
+  if (id === 'courses')  loadCourses();
+  if (id === 'instituts') loadInsts();
+  if (id === 'users')    loadUsers();
+  if (id === 'news')     loadNews();
+  if (id === 'settings') loadSiteConfig();
+}
+
+function loadAll() {
+  loadVids(); loadCourses(); loadInsts(); loadUsers(); loadNews();
+}
+
+/* ══════ CATEGORIES ══════ */
+const CATS = {
+  scene:           ['performance','ecriture','scenographie','mise-en-scene','improvisation'],
+  cinema:          ['realisation','scenario','montage','photo','documentaire'],
+  'art-plastique': ['peinture','sculpture','numerique','dessin'],
+  musique:         ['guitare','piano','chant','production']
+};
+function fillVCat() {
+  const d = document.getElementById('vDisc').value;
+  const s = document.getElementById('vCat');
+  s.innerHTML = '<option value="">— Choisir —</option>';
+  (CATS[d]||[]).forEach(c => { const o=document.createElement('option'); o.value=c; o.textContent=c; s.appendChild(o); });
+}
+
+/* ══════ FILE HANDLERS ══════ */
+function selV(inp) {
+  const t = document.getElementById('vTag');
+  if (inp.files[0]) { t.textContent='✓ '+inp.files[0].name; t.style.display='block'; }
+}
+function selT(inp) {
+  const p = document.getElementById('tPrev');
+  if (inp.files[0]) { p.src=URL.createObjectURL(inp.files[0]); p.style.display='block'; }
+}
+
+/* ══════ UPLOAD VIDÉO ══════ */
+function uploadVid() {
+  const titre = document.getElementById('vTitre').value.trim();
+  const disc  = document.getElementById('vDisc').value;
+  const cat   = document.getElementById('vCat').value;
+  const vf    = document.getElementById('vFile').files[0];
+  const msgEl = document.getElementById('vMsg');
+  if (!titre||!disc||!cat||!vf) { showMsg(msgEl,'err','⚠️ Titre, discipline, catégorie et fichier vidéo sont obligatoires.'); return; }
+  const fd = new FormData();
+  fd.append('titre',titre); fd.append('discipline',disc); fd.append('categorie',cat);
+  fd.append('formateur',document.getElementById('vFormateur').value);
+  fd.append('duree',document.getElementById('vDuree').value);
+  fd.append('description',document.getElementById('vDesc').value);
+  fd.append('video',vf);
+  const tf = document.getElementById('tFile').files[0];
+  if (tf) fd.append('thumbnail',tf);
+  const prog=document.getElementById('vProg'), fill=document.getElementById('vFill'), txt=document.getElementById('vTxt');
+  prog.style.display='block'; msgEl.style.display='none';
+  const xhr=new XMLHttpRequest();
+  xhr.open('POST', API+'/api/videos/upload');
+  xhr.upload.onprogress=e=>{ if(e.lengthComputable){ const p=Math.round(e.loaded/e.total*100); fill.style.width=p+'%'; txt.textContent=p<100?'Upload : '+p+'%':'⏳ Traitement...'; } };
+  xhr.onload=()=>{ prog.style.display='none'; if(xhr.status===201){ showMsg(msgEl,'ok','✅ Vidéo uploadée avec succès !'); resetVForm(); loadVids(); } else { showMsg(msgEl,'err','❌ '+(JSON.parse(xhr.responseText).message||'Erreur.')); } };
+  xhr.onerror=()=>{
+    prog.style.display='none';
+    showMsg(msgEl,'err','❌ Connexion au serveur impossible. Vérifiez que le serveur est démarré sur le port 5000.');
+  };
+  xhr.send(fd);
+}
+function resetVForm() {
+  ['vTitre','vFormateur','vDuree','vDesc'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('vDisc').value=''; document.getElementById('vCat').innerHTML='<option value="">— Choisir discipline —</option>';
+  document.getElementById('vFile').value=''; document.getElementById('tFile').value='';
+  document.getElementById('vTag').style.display='none'; document.getElementById('tPrev').style.display='none';
+  document.getElementById('vFill').style.width='0%';
+}
+
+/* ══════ LOAD VIDÉOS ══════ */
+async function loadVids() {
+  const disc = (document.getElementById('filtDisc')||{}).value||'';
+  const wrap = document.getElementById('vidsTbl');
+  wrap.innerHTML = '<div class="empty"><span>⏳</span>Chargement...</div>';
+  try {
+    const r = await fetch(API+'/api/videos'+(disc?'?discipline='+disc:''));
+    const d = await r.json();
+    let vids = d.videos||[];
+    /* Fusionner avec localStorage */
+    const local = Store.Videos.getAll(null);
+    const apiIds = new Set(vids.map(v=>v._id));
+    const toSync = local.filter(v => v._local && !apiIds.has(v._id));
+    /* Afficher les vidéos serveur + locales ensemble */
+    const allVids = [...vids, ...local.filter(v => v._local && !apiIds.has(v._id))];
+    const toShow = disc ? allVids.filter(v => v.discipline === disc) : allVids;
+    renderVidsTable(wrap, toShow);
+  } catch(e) {
+    /* Fallback 100% localStorage */
+    const vids = Store.Videos.getAll(disc||null);
+    if (!vids.length) { wrap.innerHTML='<div class="empty"><span>🎬</span>Aucune vidéo. Le serveur est hors ligne — uploadez une vidéo pour la sauvegarder localement.</div>'; return; }
+    renderVidsTable(wrap, vids);
+  }
+}
+
+async function autoSyncVideos(locals) {
+  let ok = 0, fail = 0;
+  for (const meta of locals) {
+    const blob = await VideoDB.get(meta._id);
+    if (!blob) {
+      console.warn('[Sync] Blob introuvable pour', meta._id, '— ignoré');
+      fail++;
+      continue;
+    }
+    const fd = new FormData();
+    fd.append('titre',       meta.titre);
+    fd.append('discipline',  meta.discipline);
+    fd.append('categorie',   meta.categorie);
+    fd.append('formateur',   meta.formateur || '');
+    fd.append('duree',       meta.duree || '');
+    fd.append('description', meta.description || '');
+    fd.append('video', blob, (meta.titre||'video').replace(/\s+/g,'_').replace(/[^a-zA-Z0-9_]/g,'') + '.mp4');
+    try {
+      const res = await fetch(API + '/api/videos/upload', { method: 'POST', body: fd });
+      if (res.ok) {
+        Store.Videos.remove(meta._id);
+        await VideoDB.remove(meta._id);
+        ok++;
+      } else {
+        const err = await res.json().catch(() => ({}));
+        console.error('[Sync] Erreur serveur:', res.status, err.message);
+        fail++;
+      }
+    } catch(e) {
+      console.error('[Sync] Fetch échoué:', e.message);
+      fail++;
+    }
+  }
+  return { ok, fail };
+}
+
+async function renderVidsTable(wrap, vids) {
+  document.getElementById('nb-v').textContent = vids.length;
+  document.getElementById('sv-v').textContent = vids.length;
+  const hasLocal = vids.some(v => v._local);
+  const warnEl = document.getElementById('localVidWarn');
+  if (warnEl) warnEl.style.display = hasLocal ? 'block' : 'none';
+  if (!vids.length) { wrap.innerHTML='<div class="empty"><span>🎬</span>Aucune vidéo uploadée pour le moment.</div>'; return; }
+
+  /* Récupérer les blob URLs depuis IndexedDB pour les vidéos locales */
+  const rows = await Promise.all(vids.map(async v => {
+    let viewHtml;
+    if (v._local) {
+      const blobUrl = await VideoDB.blobUrl(v._id);
+      viewHtml = blobUrl
+        ? `<button class="btn-act btn-view" onclick="window.open('${blobUrl}','_blank')">▶ Voir</button>`
+        : `<span style="font-size:.72rem;color:var(--gray)">Fichier introuvable</span>`;
+      viewHtml += ` <button class="btn-act" style="background:rgba(201,168,76,.15);color:var(--gold);border:1px solid rgba(201,168,76,.3)" onclick="syncLocalVid('${v._id}')">📤 Sync</button>`;
+    } else {
+      const src = v.videoPath ? API + v.videoPath : '#';
+      viewHtml = `<button class="btn-act btn-view" onclick="window.open('${src}','_blank')">▶ Voir</button>`;
+    }
+    return `<tr>
+      <td><strong>${v.titre}</strong>${v._local?'<span style="font-size:.65rem;color:var(--gold);margin-left:6px">● local</span>':''}</td>
+      <td><span class="badge bg-gold">${v.discipline}</span></td>
+      <td>${v.categorie}</td>
+      <td>${v.formateur||'—'}</td>
+      <td>${v.duree||'—'}</td>
+      <td>${v.vues||0}</td>
+      <td><div class="acts">${viewHtml}
+        <button class="btn-act btn-del" onclick="delVid('${v._id}','${v._local||false}')">🗑️ Supprimer</button>
+      </div></td>
+    </tr>`;
+  }));
+
+  wrap.innerHTML = `<table><thead><tr><th>Titre</th><th>Discipline</th><th>Catégorie</th><th>Formateur</th><th>Durée</th><th>Vues</th><th>Actions</th></tr></thead><tbody>${rows.join('')}</tbody></table>`;
+}
+
+async function syncLocalVid(id) {
+  const meta = Store.Videos.getAll(null).find(v => v._id === id);
+  if (!meta) { alert('Métadonnées introuvables.'); return; }
+  const blob = await VideoDB.get(id);
+  if (!blob) { alert('Fichier vidéo introuvable dans le navigateur. Vous devez re-uploader le fichier.'); return; }
+  const fd = new FormData();
+  fd.append('titre',       meta.titre);
+  fd.append('discipline',  meta.discipline);
+  fd.append('categorie',   meta.categorie);
+  fd.append('formateur',   meta.formateur || '');
+  fd.append('duree',       meta.duree || '');
+  fd.append('description', meta.description || '');
+  fd.append('video', blob, meta.titre.replace(/\s+/g,'_') + '.mp4');
+  try {
+    const r = await fetch(API + '/api/videos/upload', { method:'POST', body: fd });
+    if (r.ok) {
+      Store.Videos.remove(id);
+      await VideoDB.remove(id);
+      alert('✅ Vidéo synchronisée vers le serveur !');
+      loadVids();
+    } else {
+      const d = await r.json();
+      alert('❌ Erreur : ' + (d.message || 'Upload échoué'));
+    }
+  } catch(e) {
+    alert('❌ Serveur inaccessible. Assurez-vous que le backend tourne sur le port 5000.');
+  }
+}
+
+async function syncAllLocalVids() {
+  const locals = Store.Videos.getAll(null).filter(v => v._local);
+  if (!locals.length) { alert('Aucune vidéo locale à synchroniser.'); return; }
+  const wrap = document.getElementById('vidsTbl');
+  if (wrap) wrap.innerHTML = '<div class="empty"><span>📤</span>Synchronisation en cours...</div>';
+  const { ok, fail } = await autoSyncVideos(locals);
+  if (ok > 0 && fail === 0) alert(`✅ ${ok} vidéo(s) envoyée(s) au serveur avec succès !`);
+  else if (ok > 0) alert(`✅ ${ok} synchronisée(s), ❌ ${fail} échouée(s). Vérifiez la console.`);
+  else alert(`❌ Échec de la synchronisation (${fail} vidéo(s)). Vérifiez que le serveur est démarré et regardez la console F12.`);
+  loadVids();
+}
+
+async function delVid(id, isLocal) {
+  if (!confirm('Supprimer cette vidéo définitivement ?')) return;
+  if (isLocal === 'true' || isLocal === true) { Store.Videos.remove(id); await VideoDB.remove(id); loadVids(); return; }
+  try { await fetch(API+'/api/videos/'+id, { method:'DELETE' }); }
+  catch { Store.Videos.remove(id); }
+  loadVids();
+}
+
+function delVidLocal(id) { if(confirm('Supprimer ?')) { Store.Videos.remove(id); loadVids(); } }
+
+/* ══════ LOAD COURSES ══════ */
+async function loadCourses() {
+  const wrap    = document.getElementById('coursesTbl');
+  const sousCat = (document.getElementById('filtSousCat')||{}).value||'';
+  wrap.innerHTML = '<div class="empty"><span>⏳</span>Chargement...</div>';
+  try {
+    const params = new URLSearchParams({ limit:200 });
+    if (_discFilter) params.set('categorie', _discFilter);
+    const r = await fetch(API+'/api/courses?'+params);
+    const d = await r.json();
+    let courses = d.courses||[];
+    const local = Store.Courses.getAll(_discFilter||null);
+    const apiIds = new Set(courses.map(c=>c._id));
+    local.forEach(c=>{ if(!apiIds.has(c._id)) courses.push(c); });
+    /* Filtre sous-catégorie */
+    if (sousCat) courses = courses.filter(c => c.sousCategorie === sousCat);
+    buildCoursesSummary([...courses, ...Store.Courses.getAll()]);
+    renderCoursesTable(wrap, courses);
+  } catch(e) {
+    let courses = Store.Courses.getAll(_discFilter||null);
+    if (sousCat) courses = courses.filter(c => c.sousCategorie === sousCat);
+    buildCoursesSummary(Store.Courses.getAll());
+    renderCoursesTable(wrap, courses, true);
+  }
+}
+
+function renderCoursesTable(wrap, courses, offline=false) {
+  const LABELS = {scene:'Scène & Théâtre', cinema:'Cinéma','art-plastique':'Art Plastique', musique:'Musique'};
+  const title  = document.getElementById('coursesPanelTitle');
+  const count  = document.getElementById('coursesCount');
+  if (title) title.textContent = '📚 ' + (_discFilter ? LABELS[_discFilter] : 'Tous les programmes');
+  if (count) count.textContent = courses.length + ' programme' + (courses.length!==1?'s':'');
+  document.getElementById('nb-c').textContent = courses.length;
+  document.getElementById('sv-c').textContent = courses.length;
+  const warnEl = document.getElementById('localCourseWarn');
+  if (warnEl) warnEl.style.display = courses.some(c => c._local) ? 'block' : 'none';
+  if (!courses.length) {
+    wrap.innerHTML=`<div class="empty"><span>📚</span>${offline?'Serveur hors ligne — ':''}Aucun programme. Cliquez sur "+ Nouveau programme".</div>`;
+    return;
+  }
+  wrap.innerHTML = `<table><thead><tr><th>Titre</th><th>Discipline</th><th>Sous-catégorie</th><th>Durée</th><th>Niveau</th><th>Formateur</th><th>Actions</th></tr></thead><tbody>
+    ${courses.map(c=>`<tr>
+      <td><strong>${c.titre}</strong>${c._local?'<span style="font-size:.65rem;color:var(--gold);margin-left:6px">● local</span>':''}</td>
+      <td><span class="badge bg-gold">${c.categorie}</span></td>
+      <td>${c.sousCategorie||'—'}</td>
+      <td>${c.dureeHeures}h</td>
+      <td><span class="badge bg-gray">${c.niveaux||'—'}</span></td>
+      <td>${c.formateur?.nom||'—'}</td>
+      <td><div class="acts">
+        <button class="btn-act btn-edit" onclick='editCourse(${JSON.stringify(c).replace(/'/g,"&#39;")})'>✏️ Modifier</button>
+        <button class="btn-act btn-del"  onclick="delCourse('${c._id}','${c._local||false}')">🗑️ Supprimer</button>
+      </div></td>
+    </tr>`).join('')}
+  </tbody></table>`;
+}
+
+function editCourse(c) {
+  document.getElementById('mCourseTitle').textContent = '✏️ Modifier le programme';
+  document.getElementById('cId').value        = c._id;
+  document.getElementById('cTitre').value     = c.titre;
+  document.getElementById('cDisc').value      = c.categorie;
+  document.getElementById('cSousCat').value   = c.sousCategorie||'autre';
+  document.getElementById('cDesc').value      = c.description;
+  document.getElementById('cDuree').value     = c.dureeHeures;
+  document.getElementById('cNiveau').value    = c.niveaux||'tous';
+  document.getElementById('cFormateur').value = c.formateur?.nom||'';
+  document.getElementById('cFormateurTitre').value = c.formateur?.titre||'';
+  document.getElementById('cTags').value      = (c.tags||[]).join(', ');
+  openModal('mCourse');
+}
+
+async function saveCourse() {
+  const id     = document.getElementById('cId').value;
+  const titre  = document.getElementById('cTitre').value.trim();
+  const disc   = document.getElementById('cDisc').value;
+  const desc   = document.getElementById('cDesc').value.trim();
+  const duree  = parseFloat(document.getElementById('cDuree').value);
+  const msgEl  = document.getElementById('cMsg');
+  if (!titre||!disc||!desc||!duree) { showMsg(msgEl,'err','⚠️ Titre, discipline, description et durée sont obligatoires.'); return; }
+  const body = {
+    titre, categorie:disc, description:desc, dureeHeures:duree,
+    sousCategorie: document.getElementById('cSousCat').value,
+    niveaux: document.getElementById('cNiveau').value,
+    formateur: { nom:document.getElementById('cFormateur').value, titre:document.getElementById('cFormateurTitre').value },
+    tags: document.getElementById('cTags').value.split(',').map(t=>t.trim()).filter(Boolean),
+    estPublie: true
+  };
+  /* Si l'item est local (jamais envoyé au serveur), forcer sauvegarde locale */
+  const isLocal = id && id.startsWith('local_');
+  try {
+    if (isLocal) throw new Error('local');
+    const url    = id ? API+'/api/courses/'+id : API+'/api/courses';
+    const method = id ? 'PUT' : 'POST';
+    const r = await fetch(url, { method, headers:authH(), body:JSON.stringify(body) });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.message||'Erreur API');
+    showMsg(msgEl,'ok', id?'✅ Programme mis à jour !':'✅ Programme créé !');
+    if (id) Store.Courses.remove(id); /* Supprimer le doublon local si synchronisé */
+    setTimeout(()=>{ closeModal('mCourse'); loadCourses(); resetCForm(); }, 1200);
+  } catch(e) {
+    /* Fallback localStorage */
+    if (isLocal && id) { Store.Courses.update(id, body); }
+    else if (!id) { Store.Courses.add(body); }
+    showMsg(msgEl,'ok', (id?'✅ Programme mis à jour':'✅ Programme créé')+' et sauvegardé localement !');
+    setTimeout(()=>{ closeModal('mCourse'); loadCourses(); resetCForm(); }, 1200);
+  }
+}
+
+function resetCForm() {
+  ['cId','cTitre','cDesc','cDuree','cFormateur','cFormateurTitre','cTags'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('mCourseTitle').textContent='📚 Nouveau Programme';
+}
+
+async function syncAllLocalCourses() {
+  const locals = Store.Courses.getAll(null).filter(c => c._local);
+  if (!locals.length) { alert('Aucune formation locale à synchroniser.'); return; }
+  let ok = 0, fail = 0;
+  for (const c of locals) {
+    const body = {
+      titre: c.titre, categorie: c.categorie, sousCategorie: c.sousCategorie,
+      description: c.description, dureeHeures: c.dureeHeures, niveaux: c.niveaux,
+      formateur: c.formateur, tags: c.tags, estPublie: true
+    };
+    try {
+      const r = await fetch(API+'/api/courses', { method:'POST', headers:authH(), body:JSON.stringify(body) });
+      if (r.ok) { Store.Courses.remove(c._id); ok++; }
+      else fail++;
+    } catch { fail++; }
+  }
+  alert(`✅ Synchronisées : ${ok}  |  ❌ Échecs : ${fail}`);
+  loadCourses();
+}
+
+async function delCourse(id, isLocal) {
+  if (!confirm('Supprimer ce programme définitivement ?')) return;
+  if (isLocal === 'true' || id.startsWith('local_')) { Store.Courses.remove(id); loadCourses(); return; }
+  try { await fetch(API+'/api/courses/'+id, { method:'DELETE', headers:authH() }); }
+  catch { Store.Courses.remove(id); }
+  loadCourses();
+}
+
+/* ══════ LOAD INSTITUTS ══════ */
+async function loadInsts() {
+  const wrap     = document.getElementById('instsTbl');
+  const typeFilter = (document.getElementById('filtInstType')||{}).value||'';
+  wrap.innerHTML = '<div class="empty"><span>⏳</span>Chargement...</div>';
+  try {
+    const params = new URLSearchParams();
+    if (_instDiscFilter) params.set('discipline', _instDiscFilter);
+    const r = await fetch(API+'/api/instituts'+(params.toString()?'?'+params:''));
+    const d = await r.json();
+    let insts = d.instituts||[];
+    const local = Store.Instituts.getAll(_instDiscFilter||null);
+    const apiIds = new Set(insts.map(i=>i._id));
+    local.forEach(i=>{ if(!apiIds.has(i._id)) insts.push(i); });
+    if (typeFilter) insts = insts.filter(i => i.type === typeFilter);
+    buildInstsSummary([...insts, ...Store.Instituts.getAll()]);
+    renderInstsTable(wrap, insts);
+  } catch(e) {
+    let insts = Store.Instituts.getAll(_instDiscFilter||null);
+    if (typeFilter) insts = insts.filter(i => i.type === typeFilter);
+    buildInstsSummary(Store.Instituts.getAll());
+    renderInstsTable(wrap, insts, true);
+  }
+}
+
+function renderInstsTable(wrap, insts, offline=false) {
+  const LABELS = {scene:'Scène & Théâtre', cinema:'Cinéma','art-plastique':'Art Plastique', musique:'Musique'};
+  const title  = document.getElementById('instsPanelTitle');
+  const count  = document.getElementById('instsCount');
+  if (title) title.textContent = '🏛️ ' + (_instDiscFilter ? LABELS[_instDiscFilter] : 'Tous les instituts');
+  if (count) count.textContent = insts.length + ' institut' + (insts.length!==1?'s':'');
+  document.getElementById('nb-i').textContent = insts.length;
+  document.getElementById('sv-i').textContent = insts.length;
+  if (!insts.length) {
+    wrap.innerHTML=`<div class="empty"><span>🏛️</span>${offline?'Serveur hors ligne — ':''}Aucun institut. Cliquez sur "+ Nouvel institut".</div>`;
+    return;
+  }
+  wrap.innerHTML = `<table><thead><tr><th>Icône</th><th>Nom</th><th>Localisation</th><th>Contact</th><th>Discipline</th><th>Type</th><th>Actions</th></tr></thead><tbody>
+    ${insts.map(i=>`<tr>
+      <td style="font-size:1.4rem;text-align:center">${i.icone||'🏛️'}</td>
+      <td><strong>${i.nom}</strong>${i._local?'<span style="font-size:.65rem;color:var(--gold);margin-left:6px">● local</span>':''}${i.specialites?`<br><span style="font-size:.72rem;color:var(--gray)">${i.specialites}</span>`:''}</td>
+      <td style="font-size:.8rem">${i.localisation||'—'}</td>
+      <td style="font-size:.78rem">${i.telephone?`📞 ${i.telephone}<br>`:''}${i.email?`✉️ ${i.email}`:''}</td>
+      <td><span class="badge bg-gold">${i.discipline}</span></td>
+      <td><span class="badge ${i.type==='Officiel'?'bg-green':i.type==='International'?'bg-blue':'bg-gray'}">${i.type}</span></td>
+      <td><div class="acts">
+        <button class="btn-act btn-edit" onclick='editInst(${JSON.stringify(i).replace(/'/g,"&#39;")})'>✏️ Modifier</button>
+        <button class="btn-act btn-del"  onclick="delInst('${i._id}','${i._local||false}')">🗑️ Supprimer</button>
+      </div></td>
+    </tr>`).join('')}
+  </tbody></table>`;
+}
+
+function editInst(i) {
+  document.getElementById('mInstTitle').textContent  = '✏️ Modifier l\'institut';
+  document.getElementById('iId').value          = i._id;
+  document.getElementById('iNom').value         = i.nom;
+  document.getElementById('iLocalisation').value= i.localisation||'';
+  document.getElementById('iTelephone').value   = i.telephone||'';
+  document.getElementById('iEmail').value        = i.email||'';
+  document.getElementById('iDisc').value        = i.discipline;
+  document.getElementById('iType').value        = i.type;
+  document.getElementById('iSpec').value        = i.specialites||'';
+  document.getElementById('iIcone').value       = i.icone||'🏛️';
+  document.getElementById('iCouleur').value     = i.couleur||'gold';
+  openModal('mInst');
+}
+
+async function saveInst() {
+  const id   = document.getElementById('iId').value;
+  const nom  = document.getElementById('iNom').value.trim();
+  const msgEl= document.getElementById('iMsg');
+  if (!nom) { showMsg(msgEl,'err','⚠️ Le nom de l\'institut est obligatoire.'); return; }
+  const body = {
+    nom,
+    localisation: document.getElementById('iLocalisation').value.trim(),
+    telephone:    document.getElementById('iTelephone').value.trim(),
+    email:        document.getElementById('iEmail').value.trim(),
+    discipline:   document.getElementById('iDisc').value,
+    type:         document.getElementById('iType').value,
+    specialites:  document.getElementById('iSpec').value,
+    icone:        document.getElementById('iIcone').value||'🏛️',
+    couleur:      document.getElementById('iCouleur').value
+  };
+  const isLocal = id && id.startsWith('local_');
+  try {
+    if (isLocal) throw new Error('local');
+    const url    = id ? API+'/api/instituts/'+id : API+'/api/instituts';
+    const method = id ? 'PUT' : 'POST';
+    const r = await fetch(url, { method, headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.message||'Erreur API');
+    showMsg(msgEl,'ok', id?'✅ Institut mis à jour !':'✅ Institut créé !');
+    if (id) Store.Instituts.remove(id);
+    setTimeout(()=>{ closeModal('mInst'); loadInsts(); resetIForm(); }, 1200);
+  } catch(e) {
+    if (isLocal && id) { Store.Instituts.update(id, body); }
+    else if (!id) { Store.Instituts.add(body); }
+    showMsg(msgEl,'ok', (id?'✅ Institut mis à jour':'✅ Institut créé')+' et sauvegardé localement !');
+    setTimeout(()=>{ closeModal('mInst'); loadInsts(); resetIForm(); }, 1200);
+  }
+}
+
+function resetIForm() {
+  ['iId','iNom','iLocalisation','iTelephone','iEmail','iSpec','iIcone'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  document.getElementById('mInstTitle').textContent='🏛️ Nouvel Institut';
+}
+
+async function delInst(id, isLocal) {
+  if (!confirm('Supprimer cet institut définitivement ?')) return;
+  if (isLocal === 'true' || id.startsWith('local_')) { Store.Instituts.remove(id); loadInsts(); return; }
+  try { await fetch(API+'/api/instituts/'+id, { method:'DELETE' }); }
+  catch { Store.Instituts.remove(id); }
+  loadInsts();
+}
+
+function editInstLocal(i) { editInst(i); }
+function delInstLocal(id) { if(confirm('Supprimer ?')) { Store.Instituts.remove(id); loadInsts(); } }
+
+/* ══════ LOAD USERS ══════ */
+async function loadUsers() {
+  const role = (document.getElementById('filtRole')||{}).value||'';
+  const wrap = document.getElementById('usersTbl');
+  wrap.innerHTML = '<div class="empty"><span>⏳</span>Chargement...</div>';
+  try {
+    const r = await fetch(API+'/api/users'+(role?'?role='+role:''), { headers:{ 'Authorization':'Bearer '+TOKEN } });
+    const d = await r.json();
+    let users = d.users||[];
+    const local = Store.Users.getAll(role||null);
+    const apiIds = new Set(users.map(u=>u._id));
+    local.forEach(u=>{ if(!apiIds.has(u._id)) users.push(u); });
+    renderUsersTable(wrap, users);
+  } catch(e) {
+    renderUsersTable(wrap, Store.Users.getAll(role||null), true);
+  }
+}
+
+function renderUsersTable(wrap, users, offline=false) {
+  /* Merge with local for summary (deduplicated) */
+  const summaryIds = new Set(users.map(u => u._id));
+  const allForSummary = [...users, ...Store.Users.getAll(null).filter(u => !summaryIds.has(u._id))];
+  buildUsersSummary(allForSummary);
+  document.getElementById('nb-u').textContent = users.length;
+  document.getElementById('sv-u').textContent = users.length;
+  if (!users.length) {
+    wrap.innerHTML=`<div class="empty"><span>👥</span>${offline?'Serveur hors ligne — ':''}Aucun utilisateur trouvé.</div>`;
+    return;
+  }
+  const roleBadge = r => ({ admin:'bg-red', formateur:'bg-blue', artiste:'bg-purple', etudiant:'bg-green' }[r]||'bg-gray');
+  wrap.innerHTML = `<table><thead><tr><th>Prénom & Nom</th><th>Email</th><th>Téléphone</th><th>Discipline</th><th>Rôle</th><th>CV</th><th>Statut</th><th>Inscrit le</th><th>Actions</th></tr></thead><tbody>
+    ${users.map(u=>`<tr>
+      <td><strong>${u.prenom||''} ${u.nom||''}</strong>${u._local?'<span style="font-size:.65rem;color:var(--gold);margin-left:6px">● local</span>':''}</td>
+      <td>${u.email||'—'}</td>
+      <td>${u.telephone||'—'}</td>
+      <td>${u.discipline||'—'}</td>
+      <td><span class="badge ${roleBadge(u.role)}">${u.role}</span></td>
+      <td>${u.cvPath
+        ? `<a href="${API}${u.cvPath}" target="_blank" title="Télécharger le CV" style="display:inline-flex;align-items:center;gap:4px;color:var(--gold);font-size:.78rem;text-decoration:none;padding:3px 8px;border:1px solid rgba(201,168,76,.3);border-radius:5px">📄 CV</a>`
+        : '<span style="color:rgba(255,255,255,0.2);font-size:.75rem">—</span>'}</td>
+      <td>${u.estVerifie
+        ? '<span class="badge bg-green">✓ Approuvé</span>'
+        : '<span class="badge bg-red">⏳ En attente</span>'}</td>
+      <td>${u.createdAt?new Date(u.createdAt).toLocaleDateString('fr-FR'):'—'}</td>
+      <td><div class="acts">
+        ${!u.estVerifie
+          ? `<button class="btn-act btn-role" onclick="approveUser('${u._id}','${u.prenom||''} ${u.nom||''}',true,'${u._local||false}')">✅ Approuver</button>`
+          : `<button class="btn-act btn-view" onclick="approveUser('${u._id}','${u.prenom||''} ${u.nom||''}',false,'${u._local||false}')">🚫 Révoquer</button>`}
+        <button class="btn-act btn-role" onclick="openRoleModal('${u._id}','${u.prenom||''} ${u.nom||''}','${u.role}')">✏️ Rôle</button>
+        <button class="btn-act btn-del"  onclick="delUser('${u._id}','${u.prenom||''} ${u.nom||''}','${u._local||false}')">🗑️ Supprimer</button>
+      </div></td>
+    </tr>`).join('')}
+  </tbody></table>`;
+}
+
+function openRoleModal(id, nom, role) {
+  document.getElementById('rUserId').value  = id;
+  document.getElementById('rUserName').value= nom;
+  document.getElementById('rRole').value    = role;
+  openModal('mRole');
+}
+
+async function saveRole() {
+  const id   = document.getElementById('rUserId').value;
+  const role = document.getElementById('rRole').value;
+  const msgEl= document.getElementById('rMsg');
+  const isLocal = id.startsWith('local_');
+  try {
+    if (isLocal) throw new Error('local');
+    const r = await fetch(API+'/api/users/'+id+'/role', { method:'PUT', headers:authH(), body:JSON.stringify({ role }) });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.message);
+    showMsg(msgEl,'ok','✅ Rôle mis à jour !');
+    setTimeout(()=>{ closeModal('mRole'); loadUsers(); }, 1000);
+  } catch(e) {
+    Store.Users.update(id, { role });
+    showMsg(msgEl,'ok','✅ Rôle mis à jour localement !');
+    setTimeout(()=>{ closeModal('mRole'); loadUsers(); }, 1000);
+  }
+}
+
+async function delUser(id, nom, isLocal) {
+  if (!confirm('Supprimer le compte de "'+nom+'" définitivement ?')) return;
+  if (isLocal === 'true' || id.startsWith('local_')) { Store.Users.remove(id); loadUsers(); return; }
+  try { await fetch(API+'/api/users/'+id, { method:'DELETE', headers:authH() }); }
+  catch { Store.Users.remove(id); }
+  loadUsers();
+}
+
+function openRoleModalLocal(id, nom, role) { openRoleModal(id, nom, role); }
+function delUserLocal(id, nom) { delUser(id, nom, 'true'); }
+
+async function approveUser(id, nom, approve, isLocal) {
+  const action = approve ? 'approuver' : 'révoquer';
+  if (!confirm(`${approve?'✅':'🚫'} ${action.charAt(0).toUpperCase()+action.slice(1)} le compte de "${nom}" ?`)) return;
+  if (isLocal === 'true' || id.startsWith('local_')) {
+    Store.Users.update(id, { estVerifie: approve });
+    loadUsers();
+    return;
+  }
+  try {
+    const r = await fetch(API+'/api/users/'+id+'/approve', { method:'PUT', headers:authH(), body:JSON.stringify({ estVerifie: approve }) });
+    if (!r.ok) throw new Error();
+  } catch {
+    Store.Users.update(id, { estVerifie: approve });
+  }
+  loadUsers();
+}
+
+/* ══════ UTILS ══════ */
+function showMsg(el, type, text) { el.className='msg '+type; el.textContent=text; el.style.display='block'; }
+function openModal(id) {
+  document.getElementById(id).classList.add('show');
+  /* Injecter le select wilaya si besoin */
+  const wrap = document.getElementById('iWilayaWrap');
+  if (wrap && !wrap.querySelector('select')) {
+    wrap.innerHTML = Store.wilayaSelect('iWilaya', '');
+  }
+}
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+document.querySelectorAll('.modal').forEach(m => {
+  m.addEventListener('click', e => { if (e.target===m) m.classList.remove('show'); });
+});
+document.addEventListener('keydown', e => {
+  if (e.key==='Escape') document.querySelectorAll('.modal.show').forEach(m=>m.classList.remove('show'));
+});
+
+/* ══════ DRAG & DROP ══════ */
+document.querySelectorAll('.dz').forEach(z => {
+  z.addEventListener('dragover',  e => { e.preventDefault(); z.classList.add('over'); });
+  z.addEventListener('dragleave', () => z.classList.remove('over'));
+  z.addEventListener('drop',      e => { e.preventDefault(); z.classList.remove('over'); });
+});
+
+/* ══════ FILTRES DISCIPLINE / SOUS-CAT ══════ */
+let _discFilter = '', _instDiscFilter = '', _instTypeFilter = '';
+
+function filterCourses(disc, btn) {
+  _discFilter = disc;
+  document.querySelectorAll('#discTabs .disc-tab').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  /* Mettre à jour le select sous-catégories */
+  const SUBCATS = {
+    scene:          ['performance','ecriture','scenographie','mise-en-scene','improvisation'],
+    cinema:         ['realisation','scenario','montage','documentaire'],
+    'art-plastique':['peinture','sculpture','numerique','dessin'],
+    musique:        ['guitare','piano','chant','production','composition']
+  };
+  const sel = document.getElementById('filtSousCat');
+  sel.innerHTML = '<option value="">Toutes sous-catégories</option>';
+  (SUBCATS[disc]||[]).forEach(s => { const o=document.createElement('option'); o.value=s; o.textContent=s.charAt(0).toUpperCase()+s.slice(1); sel.appendChild(o); });
+  loadCourses();
+}
+
+function filterInsts(disc, type, btn) {
+  _instDiscFilter = disc;
+  if (btn) {
+    document.querySelectorAll('#instDiscTabs .disc-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+  loadInsts();
+}
+
+/* ══════ RÉSUMÉS PAR DISCIPLINE ══════ */
+function buildCoursesSummary(all) {
+  const cats = [
+    {k:'scene', icon:'🎭', label:'Scène & Théâtre'},
+    {k:'cinema', icon:'🎬', label:'Cinéma'},
+    {k:'art-plastique', icon:'🎨', label:'Art Plastique'},
+    {k:'musique', icon:'🎵', label:'Musique'}
+  ];
+  const wrap = document.getElementById('coursesDocSummary');
+  if (!wrap) return;
+  wrap.innerHTML = cats.map(c => {
+    const list = all.filter(x => x.categorie === c.k);
+    const subcats = [...new Set(list.map(x => x.sousCategorie||'—'))];
+    return `<div class="doc-card">
+      <div class="doc-card-icon">${c.icon}</div>
+      <div class="doc-card-title">${c.label}</div>
+      <div class="doc-card-count">${list.length}</div>
+      <div class="doc-card-sub">${subcats.slice(0,3).join(' · ')}${subcats.length>3?' …':''}</div>
+    </div>`;
+  }).join('');
+}
+
+function buildInstsSummary(all) {
+  const cats = [
+    {k:'scene', icon:'🎭', label:'Scène'},
+    {k:'cinema', icon:'🎬', label:'Cinéma'},
+    {k:'art-plastique', icon:'🎨', label:'Art Plastique'},
+    {k:'musique', icon:'🎵', label:'Musique'}
+  ];
+  const wrap = document.getElementById('instsDocSummary');
+  if (!wrap) return;
+  wrap.innerHTML = cats.map(c => {
+    const list = all.filter(x => x.discipline===c.k || x.discipline==='toutes');
+    const types = [...new Set(list.map(x => x.type||'—'))];
+    return `<div class="doc-card">
+      <div class="doc-card-icon">${c.icon}</div>
+      <div class="doc-card-title">${c.label}</div>
+      <div class="doc-card-count">${list.length}</div>
+      <div class="doc-card-sub">${types.slice(0,3).join(' · ')}</div>
+    </div>`;
+  }).join('');
+}
+
+function buildUsersSummary(all) {
+  const roles = [
+    {k:'etudiant', icon:'🎓', label:'Étudiants', color:'#27ae60'},
+    {k:'artiste',  icon:'🎨', label:'Artistes',  color:'#9b59b6'},
+    {k:'formateur',icon:'👨‍🏫', label:'Formateurs',color:'#3498db'},
+    {k:'admin',    icon:'⚙️', label:'Admins',    color:'#e74c3c'}
+  ];
+  const wrap = document.getElementById('usersDocSummary');
+  if (!wrap) return;
+  const pending = all.filter(u => !u.estVerifie && u.role !== 'admin').length;
+  /* Update pending badge */
+  const nb = document.getElementById('nb-pending');
+  if (nb) { nb.textContent = pending; nb.style.display = pending > 0 ? '' : 'none'; }
+  wrap.innerHTML = roles.map(r => {
+    const list  = all.filter(u => u.role === r.k);
+    const ok    = list.filter(u => u.estVerifie).length;
+    const wait  = list.filter(u => !u.estVerifie).length;
+    return `<div class="doc-card" style="border-color:${r.color}22">
+      <div class="doc-card-icon">${r.icon}</div>
+      <div class="doc-card-title" style="color:${r.color}">${r.label}</div>
+      <div class="doc-card-count">${list.length}</div>
+      <div class="doc-card-sub">${ok} approuvé${ok!==1?'s':''} · ${wait} en attente</div>
+    </div>`;
+  }).join('');
+}
+
+/* ══════ ACTUALITÉS ══════ */
+async function loadNews() {
+  const type = (document.getElementById('filtNewsType')||{}).value||'';
+  const wrap = document.getElementById('newsTbl');
+  if (!wrap) return;
+  wrap.innerHTML = '<div class="empty"><span>⏳</span>Chargement...</div>';
+  let news = [];
+  try {
+    const r = await fetch(API+'/api/news'+(type?'?type='+encodeURIComponent(type):''));
+    const d = await r.json();
+    news = d.news || [];
+    /* Fusionner avec localStorage */
+    const apiIds = new Set(news.map(n=>n._id));
+    Store.News.getAll(type||null).forEach(n => { if (!apiIds.has(n._id)) news.push(n); });
+  } catch {
+    news = Store.News.getAll(type||null);
+  }
+  document.getElementById('nb-news').textContent = Store.News.getAll(null).length + news.filter(n=>!n._local).length;
+  if (!news.length) {
+    wrap.innerHTML = '<div class="empty"><span>📰</span>Aucune actualité. Utilisez le formulaire ci-dessus.</div>';
+    return;
+  }
+  wrap.innerHTML = `<table><thead><tr><th>Titre</th><th>Type</th><th>Discipline</th><th>Contact</th><th>Date</th><th>Actions</th></tr></thead><tbody>
+    ${news.map(n=>`<tr>
+      <td><strong>${n.titre}</strong>${n._local?'<span style="font-size:.65rem;color:var(--gold);margin-left:6px">● local</span>':''}${n.image?'<span style="font-size:.65rem;color:var(--gold);margin-left:4px">🖼️</span>':''}</td>
+      <td><span class="badge bg-gold">${n.type||'Article'}</span></td>
+      <td>${n.discipline||'Toutes'}</td>
+      <td>${n.contact||'—'}</td>
+      <td>${n.createdAt?new Date(n.createdAt).toLocaleDateString('fr-FR'):'—'}</td>
+      <td><div class="acts">
+        <button class="btn-act btn-edit" onclick='editNews(${JSON.stringify(n).replace(/'/g,"&#39;")})'>✏️ Modifier</button>
+        <button class="btn-act btn-del"  onclick="delNews('${n._id}','${n._local||false}')">🗑️ Supprimer</button>
+      </div></td>
+    </tr>`).join('')}
+  </tbody></table>`;
+}
+
+async function saveNews() {
+  const id      = document.getElementById('nId').value;
+  const titre   = document.getElementById('nTitre').value.trim();
+  const contenu = document.getElementById('nContenu').value.trim();
+  const msgEl   = document.getElementById('nMsg');
+  if (!titre || !contenu) { showMsg(msgEl,'err','⚠️ Titre et contenu sont obligatoires.'); return; }
+  const body = {
+    titre, contenu,
+    type:      document.getElementById('nType').value,
+    discipline:document.getElementById('nDisc').value,
+    image:     document.getElementById('nImage').value.trim(),
+    contact:   document.getElementById('nContact').value.trim(),
+    estPublie: true
+  };
+  const isLocal = id && id.startsWith('local_');
+  try {
+    if (isLocal) throw new Error('local');
+    const url    = id ? API+'/api/news/'+id : API+'/api/news';
+    const method = id ? 'PUT' : 'POST';
+    const r = await fetch(url, { method, headers:authH(), body:JSON.stringify(body) });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.message||'Erreur API');
+    if (id) Store.News.remove(id); /* Supprimer l'entrée locale si synchronisée */
+    showMsg(msgEl,'ok', id ? '✅ Actualité mise à jour (MongoDB) !' : '✅ Actualité publiée sur MongoDB !');
+  } catch {
+    if (isLocal && id) { Store.News.update(id, body); }
+    else if (!id)      { Store.News.add(body); }
+    showMsg(msgEl,'ok', (id ? '✅ Actualité mise à jour' : '✅ Actualité publiée') + ' (sauvegardée localement).');
+  }
+  resetNForm();
+  setTimeout(() => { msgEl.style.display='none'; loadNews(); }, 1200);
+}
+
+function editNews(n) {
+  document.getElementById('newsPanelTitle').textContent = '✏️ Modifier l\'actualité';
+  document.getElementById('nId').value       = n._id;
+  document.getElementById('nTitre').value    = n.titre;
+  document.getElementById('nType').value     = n.type||'Article';
+  document.getElementById('nDisc').value     = n.discipline||'';
+  document.getElementById('nContenu').value  = n.contenu||'';
+  document.getElementById('nImage').value    = n.image||'';
+  document.getElementById('nContact').value  = n.contact||'';
+  /* Scroll to form */
+  document.getElementById('panel-news').scrollIntoView({ behavior:'smooth' });
+}
+
+async function delNews(id, isLocal) {
+  if (!confirm('Supprimer cette actualité ?')) return;
+  if (isLocal === 'true' || (id && id.startsWith('local_'))) { Store.News.remove(id); loadNews(); return; }
+  try { await fetch(API+'/api/news/'+id, { method:'DELETE', headers:authH() }); }
+  catch { Store.News.remove(id); }
+  loadNews();
+}
+
+function resetNForm() {
+  ['nId','nTitre','nContenu','nImage','nContact'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+  const title = document.getElementById('newsPanelTitle');
+  if (title) title.textContent = '📰 Nouvelle actualité';
+}
+
+/* ══════ PARAMÈTRES DU SITE ══════ */
+function setVal(id, val) { const el = document.getElementById(id); if (el) el.value = val || ''; }
+function getVal(id) { const el = document.getElementById(id); return el ? el.value.trim() : ''; }
+
+async function loadSiteConfig() {
+  try {
+    const r = await fetch(API + '/api/siteconfig');
+    if (!r.ok) throw new Error();
+    const c = await r.json();
+    setVal('cfgTel',       c.telephone);
+    setVal('cfgEmail',     c.email);
+    setVal('cfgAdresse',   c.adresse);
+    setVal('cfgFb',        c.facebook);
+    setVal('cfgIg',        c.instagram);
+    setVal('cfgYt',        c.youtube);
+    setVal('cfgLi',        c.linkedin);
+    setVal('cfgHeroTitre', c.heroTitre);
+    setVal('cfgHeroSub',   c.heroSousTitre);
+    setVal('cfgS1c', c.stat1Chiffre); setVal('cfgS1l', c.stat1Label);
+    setVal('cfgS2c', c.stat2Chiffre); setVal('cfgS2l', c.stat2Label);
+    setVal('cfgS3c', c.stat3Chiffre); setVal('cfgS3l', c.stat3Label);
+    setVal('cfgS4c', c.stat4Chiffre); setVal('cfgS4l', c.stat4Label);
+  } catch {
+    /* Fallback localStorage */
+    try {
+      const c = JSON.parse(localStorage.getItem('proform_siteconfig') || '{}');
+      Object.entries(c).forEach(([k,v]) => { /* map keys to input IDs */ });
+    } catch {}
+    const msg = document.getElementById('cfgMsg');
+    if (msg) { msg.textContent = '⚠️ Backend hors ligne — affichage local.'; msg.style.color='#f39c12'; }
+  }
+}
+
+async function saveSiteConfig() {
+  const body = {
+    telephone: getVal('cfgTel'), email: getVal('cfgEmail'), adresse: getVal('cfgAdresse'),
+    facebook: getVal('cfgFb'), instagram: getVal('cfgIg'), youtube: getVal('cfgYt'), linkedin: getVal('cfgLi'),
+    heroTitre: getVal('cfgHeroTitre'), heroSousTitre: getVal('cfgHeroSub'),
+    stat1Chiffre: getVal('cfgS1c'), stat1Label: getVal('cfgS1l'),
+    stat2Chiffre: getVal('cfgS2c'), stat2Label: getVal('cfgS2l'),
+    stat3Chiffre: getVal('cfgS3c'), stat3Label: getVal('cfgS3l'),
+    stat4Chiffre: getVal('cfgS4c'), stat4Label: getVal('cfgS4l'),
+  };
+  const msg = document.getElementById('cfgMsg');
+  try {
+    const r = await fetch(API + '/api/siteconfig', {
+      method: 'PUT',
+      headers: { 'Content-Type':'application/json', 'Authorization':'Bearer '+TOKEN },
+      body: JSON.stringify(body)
+    });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.message);
+    if (msg) { msg.textContent = '✅ Paramètres sauvegardés !'; msg.style.color='#27ae60'; }
+    localStorage.setItem('proform_siteconfig', JSON.stringify(body));
+  } catch {
+    localStorage.setItem('proform_siteconfig', JSON.stringify(body));
+    if (msg) { msg.textContent = '✅ Sauvegardé en local (backend hors ligne).'; msg.style.color='#f39c12'; }
+  }
+  setTimeout(() => { if (msg) msg.textContent = ''; }, 3000);
+}
+
+/* ══════ INIT ══════ */
+if (localStorage.getItem('proform_admin_ok') === '1') {
+  TOKEN = localStorage.getItem('proform_admin_token') || '';
+  document.getElementById('sbUserInfo').textContent = 'Administrateur';
+  showAdmin();
+}
+</script>
+</body>
+</html>

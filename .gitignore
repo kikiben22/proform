@@ -1,0 +1,10 @@
+node_modules/
+.env
+backend/server.log
+backend/server.err
+backend/uploads/videos/*
+backend/uploads/thumbnails/*
+backend/uploads/cvs/*
+!backend/uploads/videos/.gitkeep
+!backend/uploads/thumbnails/.gitkeep
+!backend/uploads/cvs/.gitkeep

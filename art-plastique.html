@@ -1,0 +1,454 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ProForm — Art Plastique</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .page-hero{padding:110px 0 60px;position:relative;overflow:hidden}
+    .page-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 20% 50%,rgba(100,20,10,0.15) 0%,transparent 50%),radial-gradient(ellipse at 80% 30%,rgba(201,168,76,0.1) 0%,transparent 50%)}
+    .hero-inner{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;position:relative}
+    .hero-title{font-family:'Playfair Display',serif;font-size:3.5rem;font-weight:900;line-height:1.15;margin-bottom:20px}
+    .hero-sub{font-size:1rem;color:var(--gray);line-height:1.8;margin-bottom:30px;max-width:500px}
+    .course-tabs{display:flex;gap:0;background:var(--dark-card);border:1px solid var(--dark-border);border-radius:12px;padding:4px;margin-bottom:40px;overflow-x:auto}
+    .course-tab{flex-shrink:0;padding:10px 22px;border-radius:8px;border:none;background:none;color:var(--gray);font-family:'Inter',sans-serif;font-size:0.85rem;font-weight:500;cursor:pointer;transition:all 0.3s ease;white-space:nowrap}
+    .course-tab.active{background:var(--gradient);color:#000;font-weight:700}
+    .courses-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-bottom:40px}
+    .video-thumb{position:relative;cursor:pointer;border-radius:12px 12px 0 0;overflow:hidden;aspect-ratio:16/9;background:#111}
+    .video-thumb img{width:100%;height:100%;object-fit:cover;transition:transform 0.4s ease;display:block}
+    .video-thumb:hover img{transform:scale(1.05)}
+    .play-btn{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.35);transition:background 0.3s ease}
+    .play-btn svg{width:56px;height:56px;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.6));transition:transform 0.3s ease}
+    .video-thumb:hover .play-btn{background:rgba(0,0,0,0.5)}
+    .video-thumb:hover .play-btn svg{transform:scale(1.1)}
+    .video-duration{position:absolute;bottom:8px;right:10px;background:rgba(0,0,0,0.8);color:#fff;font-size:0.7rem;font-weight:700;padding:2px 7px;border-radius:4px}
+    .video-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:9999;align-items:center;justify-content:center;padding:20px}
+    .video-modal.show{display:flex;animation:fadeIn 0.3s ease}
+    .video-modal-box{background:#111;border:1px solid var(--dark-border);border-radius:20px;width:100%;max-width:900px;overflow:hidden;animation:slideUp 0.3s ease}
+    .video-modal-header{display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid var(--dark-border)}
+    .video-modal-title{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700}
+    .modal-close{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.08);border:none;color:#fff;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.2s ease;flex-shrink:0}
+    .modal-close:hover{background:rgba(255,255,255,0.18)}
+    .video-embed-wrap{position:relative;padding-bottom:56.25%;background:#000}
+    .video-embed-wrap iframe{position:absolute;inset:0;width:100%;height:100%;border:none}
+    .video-no-src{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,#2a0a0a,#5a1a10);gap:16px}
+    .video-modal-footer{padding:20px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;border-top:1px solid var(--dark-border)}
+    .video-modal-meta{display:flex;gap:16px;font-size:0.82rem;color:var(--gray)}
+    .modules-panel{background:var(--dark-card);border:1px solid var(--gold-dark);border-radius:16px;padding:28px;margin-bottom:24px;display:none;animation:fadeInUp 0.4s ease}
+    .modules-panel.show{display:block}
+    .modules-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:16px 0}
+    .module-item{display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(255,255,255,0.03);border:1px solid var(--dark-border);border-radius:8px;font-size:0.82rem}
+    .module-num{width:22px;height:22px;border-radius:5px;background:var(--gradient);color:#000;font-size:0.68rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .institutes-section{background:var(--dark);border:1px solid var(--dark-border);border-radius:20px;padding:40px;margin:60px 0}
+    .institutes-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:30px;flex-wrap:wrap;gap:16px}
+    .institutes-header h3{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:700}
+    .institutes-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+    .inst-card{background:var(--black);border:1px solid var(--dark-border);border-radius:12px;padding:16px 18px;display:flex;align-items:center;gap:13px;transition:all 0.3s ease;cursor:pointer}
+    .inst-card:hover{border-color:var(--gold-dark);background:rgba(201,168,76,0.03);transform:translateY(-2px)}
+    .inst-logo{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0}
+    .inst-logo.red{background:linear-gradient(135deg,#5a1a10,#8a2510)}
+    .inst-logo.gold{background:linear-gradient(135deg,#7a5c1a,#c9a84c)}
+    .inst-logo.purple{background:linear-gradient(135deg,#2d1b69,#4a2080)}
+    .inst-logo.teal{background:linear-gradient(135deg,#0a3a3a,#1a6a6a)}
+    .inst-logo.blue{background:linear-gradient(135deg,#0a2050,#1a4a9a)}
+    .inst-logo.green{background:linear-gradient(135deg,#0a3a0a,#1a6a1a)}
+    .inst-logo.orange{background:linear-gradient(135deg,#5a2a00,#c9640a)}
+    .inst-logo.pink{background:linear-gradient(135deg,#4a0a3a,#8a1a6a)}
+    .inst-info strong{display:block;font-size:0.82rem;font-weight:600;margin-bottom:2px}
+    .inst-info span{font-size:0.72rem;color:var(--gray)}
+    .inst-badge{margin-left:auto;background:rgba(201,168,76,0.1);color:var(--gold);font-size:0.6rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 7px;border-radius:4px;flex-shrink:0}
+    .subscribe-cta{background:var(--gradient);border-radius:20px;padding:50px;text-align:center;margin:60px 0;position:relative;overflow:hidden}
+    .subscribe-cta::before{content:'';position:absolute;inset:0;background:rgba(0,0,0,0.2)}
+    .subscribe-cta *{position:relative}
+    .subscribe-cta h2{font-family:'Playfair Display',serif;font-size:2.5rem;font-weight:900;color:#000;margin-bottom:14px}
+    .subscribe-cta p{font-size:1rem;color:rgba(0,0,0,0.7);margin-bottom:28px;max-width:480px;margin-left:auto;margin-right:auto}
+    .subscribe-cta .cta-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+    .subscribe-cta .btn-dark{background:#000;color:var(--gold);border:none;padding:14px 32px;border-radius:8px;font-weight:700;font-size:0.95rem;cursor:pointer;transition:all 0.3s ease;text-decoration:none}
+    .subscribe-cta .btn-dark:hover{background:var(--dark);transform:translateY(-2px)}
+    .subscribe-cta .btn-white{background:rgba(255,255,255,0.2);color:#000;border:2px solid rgba(0,0,0,0.3);padding:14px 32px;border-radius:8px;font-weight:700;cursor:pointer;transition:all 0.3s ease;text-decoration:none}
+    .hero-slider{border-radius:20px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,0.6)}
+    @keyframes slideUp{from{transform:translateY(40px);opacity:0}to{transform:translateY(0);opacity:1}}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+    @media(max-width:1024px){.courses-grid{grid-template-columns:repeat(2,1fr)}.institutes-grid{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:768px){.hero-inner{grid-template-columns:1fr}.hero-slider{display:none}.courses-grid{grid-template-columns:1fr}.hero-title{font-size:2.4rem}.modules-grid{grid-template-columns:1fr}.institutes-grid{grid-template-columns:1fr}.subscribe-cta{padding:36px 24px}.subscribe-cta h2{font-size:1.8rem}}
+  </style>
+</head>
+<body>
+
+<div class="video-modal" id="videoModal" onclick="handleModalClick(event)">
+  <div class="video-modal-box">
+    <div class="video-modal-header">
+      <div>
+        <div class="video-modal-title" id="modalTitle">Titre du cours</div>
+        <div style="font-size:0.7rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gold);background:rgba(201,168,76,0.1);padding:3px 10px;border-radius:20px;margin-top:4px;display:inline-block;">🎨 Art Plastique</div>
+      </div>
+      <button class="modal-close" onclick="closeVideoModal()">✕</button>
+    </div>
+    <div class="video-embed-wrap">
+      <div class="video-no-src" id="videoNoSrc"><div style="font-size:3rem">⏳</div><p style="color:rgba(255,255,255,0.5)" id="noSrcTitle">Chargement...</p></div>
+      <video id="videoPlayer" controls style="display:none;position:absolute;inset:0;width:100%;height:100%;background:#000;" preload="metadata"></video>
+    </div>
+    <div class="video-modal-footer">
+      <div class="video-modal-meta"><span id="modalRating">⭐ —</span><span id="modalDuration">🕐 —</span><span id="modalLevel">📊 —</span></div>
+      <a href="index.html" class="btn btn-gold" style="font-size:0.85rem;padding:10px 22px;">✦ S'inscrire pour accéder</a>
+    </div>
+  </div>
+</div>
+
+<nav class="navbar">
+  <a href="index.html" class="nav-logo"><svg width="26" height="26" viewBox="0 0 26 26" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0"><polygon points="13,1.5 23.1,7.5 23.1,18.5 13,24.5 2.9,18.5 2.9,7.5" fill="rgba(201,168,76,0.12)" stroke="#C9A84C" stroke-width="1.5"/><text x="13" y="17.5" text-anchor="middle" font-size="9.5" font-weight="900" fill="#C9A84C" font-family="Georgia,serif">PF</text></svg> PRO<span>FORM</span></a>
+  <ul class="nav-menu">
+    <li><button>Explorer <span class="arrow">▾</span></button><div class="dropdown"><a href="scene.html"><span class="icon">🎭</span> Scène & Théâtre</a><a href="cinema.html"><span class="icon">🎬</span> Cinéma</a><a href="art-plastique.html"><span class="icon">🎨</span> Art Plastique</a><a href="musique.html"><span class="icon">🎵</span> Musique</a></div></li>
+    <li><button>Menu <span class="arrow">▾</span></button><div class="dropdown"><a href="promotion.html"><span class="icon">⭐</span> Promotion</a><div style="padding:6px 18px 4px;font-size:.68rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--gold);font-weight:700;border-top:1px solid var(--dark-border);margin-top:4px">Formations</div><a href="sceneformation.html"><span class="icon">🎭</span> Scène &amp; Théâtre</a><a href="cinemaformation.html"><span class="icon">🎬</span> Cinéma</a><a href="art-plastiqueformation.html"><span class="icon">🎨</span> Art Plastique</a><a href="musiqueformation.html"><span class="icon">🎵</span> Musique</a><a href="actualites.html" style="border-top:1px solid var(--dark-border);margin-top:4px;padding-top:10px"><span class="icon">📰</span> Actualités</a><a href="index.html#siteFooter"><span class="icon">📞</span> Contact</a></div></li>
+    <li>
+      <button class="btn btn-gold" style="padding:8px 18px;font-size:0.8rem;">Connexion <span class="arrow">▾</span></button>
+      <div class="dropdown" style="right:0;left:auto;min-width:200px;">
+        <a href="index.html"><span class="icon">👤</span> S'inscrire / Se connecter</a>
+      </div>
+    </li>
+  </ul>
+</nav>
+
+<div class="page-wrapper">
+  <section class="page-hero">
+    <div class="container">
+      <div class="hero-inner">
+        <div>
+          <div class="section-badge">🎨 Arts Plastiques & Visuels</div>
+          <h1 class="hero-title">Exprimez votre <span class="text-gold">créativité</span><br>sans limites</h1>
+          <p class="hero-sub">Peinture, sculpture, art numérique et dessin — des formations complètes pour développer votre style artistique unique, dispensées par des artistes reconnus.</p>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;">
+            <a href="#cours" class="btn btn-gold btn-lg">🎨 Parcourir les cours</a>
+            <a href="index.html" class="btn btn-outline btn-lg">S'abonner maintenant</a>
+          </div>
+        </div>
+        <div class="hero-slider">
+          <div class="slider-container" id="heroSlider">
+            <div class="slider-track" id="sliderTrack">
+              <div class="slider-slide">
+                <img src="https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=600&h=400&fit=crop" alt="Peinture"
+                     onerror="this.parentNode.style.background='linear-gradient(135deg,#2a0a0a,#5a1a10)';this.parentNode.style.height='380px';this.parentNode.innerHTML='<div style=\'display:flex;align-items:center;justify-content:center;height:100%;font-size:8rem;\'>🖌️</div>'" />
+                <div class="slider-overlay">
+                  <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:2px;color:var(--gold);margin-bottom:6px;">Peinture</div>
+                  <div style="font-family:Playfair Display,serif;font-size:1.3rem;font-weight:700;">Acrylique & aquarelle</div>
+                </div>
+              </div>
+              <div class="slider-slide">
+                <img src="https://images.unsplash.com/photo-1578301978693-85fa9c0320b9?w=600&h=400&fit=crop" alt="Sculpture"
+                     onerror="this.parentNode.style.background='linear-gradient(135deg,#2a1a0a,#5a3a10)';this.parentNode.style.height='380px';this.parentNode.innerHTML='<div style=\'display:flex;align-items:center;justify-content:center;height:100%;font-size:8rem;\'>🗿</div>'" />
+                <div class="slider-overlay">
+                  <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:2px;color:var(--gold);margin-bottom:6px;">Sculpture</div>
+                  <div style="font-family:Playfair Display,serif;font-size:1.3rem;font-weight:700;">Modelage & argile</div>
+                </div>
+              </div>
+              <div class="slider-slide">
+                <img src="https://images.unsplash.com/photo-1561070791-2526d30994b5?w=600&h=400&fit=crop" alt="Art Numérique"
+                     onerror="this.parentNode.style.background='linear-gradient(135deg,#0a0a2a,#1a1a6a)';this.parentNode.style.height='380px';this.parentNode.innerHTML='<div style=\'display:flex;align-items:center;justify-content:center;height:100%;font-size:8rem;\'>💻</div>'" />
+                <div class="slider-overlay">
+                  <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:2px;color:var(--gold);margin-bottom:6px;">Art Numérique</div>
+                  <div style="font-family:Playfair Display,serif;font-size:1.3rem;font-weight:700;">Procreate & Photoshop</div>
+                </div>
+              </div>
+              <div class="slider-slide">
+                <img src="https://images.unsplash.com/photo-1542744094-3a31f272c490?w=600&h=400&fit=crop" alt="Dessin"
+                     onerror="this.parentNode.style.background='linear-gradient(135deg,#1a1a0a,#4a4a10)';this.parentNode.style.height='380px';this.parentNode.innerHTML='<div style=\'display:flex;align-items:center;justify-content:center;height:100%;font-size:8rem;\'>✏️</div>'" />
+                <div class="slider-overlay">
+                  <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:2px;color:var(--gold);margin-bottom:6px;">Dessin</div>
+                  <div style="font-family:Playfair Display,serif;font-size:1.3rem;font-weight:700;">Académique & figure humaine</div>
+                </div>
+              </div>
+            </div>
+            <div class="slider-nav">
+              <button class="slider-btn" onclick="slideMove(-1)">&#8592;</button>
+              <button class="slider-btn" onclick="slideMove(1)">&#8594;</button>
+            </div>
+          </div>
+          <div class="slider-dots" id="sliderDots">
+            <div class="slider-dot active" onclick="goToSlide(0)"></div>
+            <div class="slider-dot" onclick="goToSlide(1)"></div>
+            <div class="slider-dot" onclick="goToSlide(2)"></div>
+            <div class="slider-dot" onclick="goToSlide(3)"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="container">
+    <div class="search-bar" style="margin-bottom:40px;">
+      <input type="text" id="courseSearch" placeholder="Rechercher un cours, une technique, un artiste..." />
+      <button class="search-btn" onclick="filterCourses()">🔍</button>
+    </div>
+
+    <div class="course-tabs" id="cours">
+      <button class="course-tab active" onclick="switchTab(this,'tous')">Tous les cours</button>
+      <button class="course-tab" onclick="switchTab(this,'peinture')">🖌️ Peinture</button>
+      <button class="course-tab" onclick="switchTab(this,'sculpture')">🗿 Sculpture</button>
+      <button class="course-tab" onclick="switchTab(this,'numerique')">💻 Art Numérique</button>
+      <button class="course-tab" onclick="switchTab(this,'dessin')">✏️ Dessin</button>
+    </div>
+
+    <!-- SECTION VIDÉOS PAR CATÉGORIE -->
+    <div id="videosSection" style="margin-bottom:40px">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+        <div style="width:3px;height:24px;background:linear-gradient(135deg,#5a1a10,#8a2510);border-radius:2px"></div>
+        <h3 style="font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;margin:0" id="videosSectionTitle">🎨 Vidéos disponibles</h3>
+        <span id="videosSectionCount" style="font-size:.75rem;color:var(--gold);background:rgba(201,168,76,.1);padding:2px 10px;border-radius:10px"></span>
+      </div>
+      <div id="videosGrid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px"></div>
+    </div>
+
+    <div class="modules-panel" id="modulesPanel">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;">
+        <div style="width:48px;height:48px;border-radius:12px;background:var(--gradient);display:flex;align-items:center;justify-content:center;font-size:1.6rem;" id="panelIcon">🎨</div>
+        <div><div style="font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;" id="panelTitle"></div><div style="font-size:0.78rem;color:var(--gold);" id="panelMeta"></div></div>
+        <button onclick="closePanel()" style="margin-left:auto;background:rgba(255,255,255,0.07);border:none;color:#fff;padding:6px 14px;border-radius:6px;cursor:pointer;font-size:0.8rem;">✕ Fermer</button>
+      </div>
+      <div class="modules-grid" id="panelModules"></div>
+      <div style="margin-top:8px;"><a href="index.html" class="btn btn-gold">S'inscrire maintenant</a></div>
+    </div>
+
+    <div class="courses-grid" id="coursesGrid">
+
+      <div class="course-card" data-cat="peinture" data-title="Peinture Acrylique — Du Blanc à l'Œuvre" data-meta="20h · Gratuit · Débutant" data-rating="⭐ 4.8 (321 avis)" data-duration="🕐 20h" data-level="📊 Débutant" data-icon="🖌️" data-modules='["Matériel et préparation du support","Théorie des couleurs — cercle chromatique","Techniques de base au pinceau","Ombres, lumières et volumes","Créer des textures et effets","Réaliser votre premier tableau"]'>
+        <div class="video-thumb" onclick="openVideoModal(this.closest('.course-card'))">
+          <img src="https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=600&h=340&fit=crop" alt="Peinture" onerror="this.parentNode.style.background='linear-gradient(135deg,#2a0a0a,#5a1a10)';this.parentNode.style.minHeight='190px';this.src=''" />
+          <div class="play-btn"><svg viewBox="0 0 80 80" fill="none"><circle cx="40" cy="40" r="40" fill="rgba(201,168,76,0.9)"/><polygon points="32,24 60,40 32,56" fill="#000"/></svg></div>
+          <div class="video-duration">20h · GRATUIT</div>
+        </div>
+        <div class="course-card-body">
+          <span class="course-tag">🖌️ Peinture</span>
+          <div class="course-title">Peinture Acrylique — Du Blanc à l'Œuvre</div>
+          <div class="course-desc">Initiez-vous à la peinture acrylique et créez votre premier tableau de A à Z.</div>
+          <div class="course-meta"><span>⭐ 4.8 (321 avis)</span><span>🕐 20h · Gratuit</span></div>
+          <button class="btn btn-gold btn-full" style="margin-top:14px;" onclick="showModules(this.closest('.course-card'))">OK — Voir le programme →</button>
+        </div>
+      </div>
+
+      <div class="course-card" data-cat="peinture" data-title="Aquarelle — Maîtrise de la Transparence" data-meta="22h · Certifié ProForm · Intermédiaire" data-rating="⭐ 4.7 (187 avis)" data-duration="🕐 22h" data-level="📊 Intermédiaire" data-icon="💧" data-modules='["Matériel aquarelle professionnel","Gestion de l'eau et de la transparence","Techniques de lavis","Paysages à l'aquarelle","Portraits et personnages","Finitions et encadrement"]'>
+        <div class="video-thumb" onclick="openVideoModal(this.closest('.course-card'))">
+          <img src="https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?w=600&h=340&fit=crop" alt="Aquarelle" onerror="this.parentNode.style.background='linear-gradient(135deg,#0a1a2a,#1a4a6a)';this.parentNode.style.minHeight='190px';this.src=''" />
+          <div class="play-btn"><svg viewBox="0 0 80 80" fill="none"><circle cx="40" cy="40" r="40" fill="rgba(201,168,76,0.9)"/><polygon points="32,24 60,40 32,56" fill="#000"/></svg></div>
+          <div class="video-duration">22h de contenu</div>
+        </div>
+        <div class="course-card-body">
+          <span class="course-tag">💧 Aquarelle</span>
+          <div class="course-title">Aquarelle — Maîtrise de la Transparence</div>
+          <div class="course-desc">Maîtrisez la fluidité et la transparence de l'aquarelle pour créer des œuvres lumineuses.</div>
+          <div class="course-meta"><span>⭐ 4.7 (187 avis)</span><span>🕐 22h</span></div>
+          <button class="btn btn-gold btn-full" style="margin-top:14px;" onclick="showModules(this.closest('.course-card'))">OK — Voir le programme →</button>
+        </div>
+      </div>
+
+      <div class="course-card" data-cat="numerique" data-title="Art Numérique & Illustration — Procreate" data-meta="25h · Certifié ProForm · Tous niveaux" data-rating="⭐ 4.9 (267 avis)" data-duration="🕐 25h" data-level="📊 Tous niveaux" data-icon="💻" data-modules='["Prise en main de Procreate","Gestes et raccourcis essentiels","Brosses personnalisées","Système de calques avancé","Illustration de personnage de A à Z","Exportation et impression"]'>
+        <div class="video-thumb" onclick="openVideoModal(this.closest('.course-card'))">
+          <img src="https://images.unsplash.com/photo-1561070791-2526d30994b5?w=600&h=340&fit=crop" alt="Numérique" onerror="this.parentNode.style.background='linear-gradient(135deg,#0a0a2a,#1a1a6a)';this.parentNode.style.minHeight='190px';this.src=''" />
+          <div class="play-btn"><svg viewBox="0 0 80 80" fill="none"><circle cx="40" cy="40" r="40" fill="rgba(201,168,76,0.9)"/><polygon points="32,24 60,40 32,56" fill="#000"/></svg></div>
+          <div class="video-duration">25h de contenu</div>
+        </div>
+        <div class="course-card-body">
+          <span class="course-tag">💻 Art Numérique</span>
+          <div class="course-title">Art Numérique & Illustration — Procreate</div>
+          <div class="course-desc">Créez des illustrations professionnelles sur iPad avec Procreate, du sketch au rendu final.</div>
+          <div class="course-meta"><span>⭐ 4.9 (267 avis)</span><span>🕐 25h</span></div>
+          <button class="btn btn-gold btn-full" style="margin-top:14px;" onclick="showModules(this.closest('.course-card'))">OK — Voir le programme →</button>
+        </div>
+      </div>
+
+      <div class="course-card" data-cat="sculpture" data-title="Sculpture sur Argile — Modelage" data-meta="28h · Certifié ProForm · Débutant" data-rating="⭐ 4.6 (134 avis)" data-duration="🕐 28h" data-level="📊 Débutant" data-icon="🗿" data-modules='["Introduction à l'argile et aux outils","Modelage de formes simples","Construction d'une sculpture humaine","Techniques de texture de surface","Cuisson et finition","Exposition de votre œuvre"]'>
+        <div class="video-thumb" onclick="openVideoModal(this.closest('.course-card'))">
+          <img src="https://images.unsplash.com/photo-1578301978693-85fa9c0320b9?w=600&h=340&fit=crop" alt="Sculpture" onerror="this.parentNode.style.background='linear-gradient(135deg,#2a1a0a,#5a3a10)';this.parentNode.style.minHeight='190px';this.src=''" />
+          <div class="play-btn"><svg viewBox="0 0 80 80" fill="none"><circle cx="40" cy="40" r="40" fill="rgba(201,168,76,0.9)"/><polygon points="32,24 60,40 32,56" fill="#000"/></svg></div>
+          <div class="video-duration">28h de contenu</div>
+        </div>
+        <div class="course-card-body">
+          <span class="course-tag">🗿 Sculpture</span>
+          <div class="course-title">Sculpture sur Argile — Modelage</div>
+          <div class="course-desc">Façonnez l'argile de vos mains et créez des sculptures expressives avec des techniques professionnelles.</div>
+          <div class="course-meta"><span>⭐ 4.6 (134 avis)</span><span>🕐 28h</span></div>
+          <button class="btn btn-gold btn-full" style="margin-top:14px;" onclick="showModules(this.closest('.course-card'))">OK — Voir le programme →</button>
+        </div>
+      </div>
+
+      <div class="course-card" data-cat="dessin" data-title="Dessin Académique — Figure Humaine" data-meta="30h · Certifié ProForm · Intermédiaire" data-rating="⭐ 4.8 (223 avis)" data-duration="🕐 30h" data-level="📊 Intermédiaire" data-icon="✏️" data-modules='["Proportions du corps humain","Dessin anatomique simplifié","Ombres et lumières au crayon","Portrait réaliste","Croquis rapide (gesture drawing)","Composition et mise en page"]'>
+        <div class="video-thumb" onclick="openVideoModal(this.closest('.course-card'))">
+          <img src="https://images.unsplash.com/photo-1542744094-3a31f272c490?w=600&h=340&fit=crop" alt="Dessin" onerror="this.parentNode.style.background='linear-gradient(135deg,#1a1a0a,#4a4a10)';this.parentNode.style.minHeight='190px';this.src=''" />
+          <div class="play-btn"><svg viewBox="0 0 80 80" fill="none"><circle cx="40" cy="40" r="40" fill="rgba(201,168,76,0.9)"/><polygon points="32,24 60,40 32,56" fill="#000"/></svg></div>
+          <div class="video-duration">30h de contenu</div>
+        </div>
+        <div class="course-card-body">
+          <span class="course-tag">✏️ Dessin</span>
+          <div class="course-title">Dessin Académique — Figure Humaine</div>
+          <div class="course-desc">Maîtrisez le dessin académique en vous concentrant sur la figure humaine et le portrait réaliste.</div>
+          <div class="course-meta"><span>⭐ 4.8 (223 avis)</span><span>🕐 30h</span></div>
+          <button class="btn btn-gold btn-full" style="margin-top:14px;" onclick="showModules(this.closest('.course-card'))">OK — Voir le programme →</button>
+        </div>
+      </div>
+
+      <div class="course-card" data-cat="numerique" data-title="Photoshop — Retouche & Création Artistique" data-meta="26h · Certifié ProForm · Tous niveaux" data-rating="⭐ 4.7 (198 avis)" data-duration="🕐 26h" data-level="📊 Tous niveaux" data-icon="🖥️" data-modules='["Interface Photoshop et outils essentiels","Sélection, masques et calques","Retouche photo professionnelle","Photo manipulation créative","Affiche et design graphique","Exportation pour impression et web"]'>
+        <div class="video-thumb" onclick="openVideoModal(this.closest('.course-card'))">
+          <img src="https://images.unsplash.com/photo-1609921212029-bb5a28e60960?w=600&h=340&fit=crop" alt="Photoshop" onerror="this.parentNode.style.background='linear-gradient(135deg,#0a1a3a,#1a3a6a)';this.parentNode.style.minHeight='190px';this.src=''" />
+          <div class="play-btn"><svg viewBox="0 0 80 80" fill="none"><circle cx="40" cy="40" r="40" fill="rgba(201,168,76,0.9)"/><polygon points="32,24 60,40 32,56" fill="#000"/></svg></div>
+          <div class="video-duration">26h de contenu</div>
+        </div>
+        <div class="course-card-body">
+          <span class="course-tag">🖥️ Art Numérique</span>
+          <div class="course-title">Photoshop — Retouche & Création Artistique</div>
+          <div class="course-desc">Du portrait retouché à la photo manipulation — maîtrisez Photoshop pour la création artistique.</div>
+          <div class="course-meta"><span>⭐ 4.7 (198 avis)</span><span>🕐 26h</span></div>
+          <button class="btn btn-gold btn-full" style="margin-top:14px;" onclick="showModules(this.closest('.course-card'))">OK — Voir le programme →</button>
+        </div>
+      </div>
+
+    </div>
+
+    <div style="text-align:center;margin-bottom:60px;">
+      <button class="btn btn-outline btn-lg" onclick="toggleInstitutes()" id="instBtn">🏛️ Voir les instituts partenaires</button>
+    </div>
+
+    <div class="institutes-section" id="institutesSection" style="display:none;">
+      <div class="institutes-header">
+        <div><div class="section-badge">🎨 Partenaires Art Plastique</div><h3>Instituts <span class="text-gold">partenaires</span></h3></div>
+        <div class="search-bar" style="max-width:280px;margin:0;"><input type="text" placeholder="Chercher un institut..." id="instSearch" oninput="filterInstitutes()" /><button class="search-btn">🔍</button></div>
+      </div>
+      <div class="institutes-grid" id="institutesGrid">
+        <div class="inst-card" data-name="École Nationale Supérieure Beaux-Arts Alger ENSBA"><div class="inst-logo red">🎨</div><div class="inst-info"><strong>ENSBA — École des Beaux-Arts d'Alger</strong><span>Alger · Peinture, Sculpture, Design</span></div><span class="inst-badge">Officiel</span></div>
+        <div class="inst-card" data-name="Institut National Arts Oran INA"><div class="inst-logo gold">🏛️</div><div class="inst-info"><strong>Institut National des Arts d'Oran</strong><span>Oran · Arts visuels et plastiques</span></div><span class="inst-badge">Officiel</span></div>
+        <div class="inst-card" data-name="École Beaux-Arts Constantine EBA"><div class="inst-logo purple">✏️</div><div class="inst-info"><strong>École des Beaux-Arts de Constantine</strong><span>Constantine · Dessin académique, Gravure</span></div><span class="inst-badge">Certifié</span></div>
+        <div class="inst-card" data-name="Centre Arts Plastiques Annaba CAP"><div class="inst-logo teal">🗿</div><div class="inst-info"><strong>Centre des Arts Plastiques d'Annaba</strong><span>Annaba · Sculpture, Céramique</span></div><span class="inst-badge">Partenaire</span></div>
+        <div class="inst-card" data-name="Digital Arts Academy Oran Numérique"><div class="inst-logo blue">💻</div><div class="inst-info"><strong>Digital Arts Academy</strong><span>Oran · Illustration numérique, Motion design</span></div><span class="inst-badge">Certifié</span></div>
+        <div class="inst-card" data-name="Galerie Arts Modernes Alger Exposition"><div class="inst-logo green">🖼️</div><div class="inst-info"><strong>Galerie d'Art Moderne d'Alger</strong><span>Alger · Exposition et résidence d'artistes</span></div><span class="inst-badge">Galerie</span></div>
+        <div class="inst-card" data-name="École Arts Appliqués Tlemcen Artisanat"><div class="inst-logo orange">🧶</div><div class="inst-info"><strong>École des Arts Appliqués de Tlemcen</strong><span>Tlemcen · Artisanat, Arts décoratifs</span></div><span class="inst-badge">Partenaire</span></div>
+        <div class="inst-card" data-name="Institut Arts Visuels Sétif Photographie"><div class="inst-logo pink">📸</div><div class="inst-info"><strong>Institut des Arts Visuels de Sétif</strong><span>Sétif · Photographie artistique</span></div><span class="inst-badge">Certifié</span></div>
+        <div class="inst-card" data-name="Institut Arts Décoratifs Paris International France"><div class="inst-logo red">🌍</div><div class="inst-info"><strong>Institut des Arts Décoratifs — Paris</strong><span>Paris, France · Partenariat international</span></div><span class="inst-badge">International</span></div>
+      </div>
+    </div>
+    </div>
+
+    <div class="subscribe-cta">
+      <h2>Créez votre<br><span style="color:#000;">chef-d'œuvre !</span></h2>
+      <p>Rejoignez ProForm et accédez à des formations d'art plastique dispensées par des artistes professionnels reconnus.</p>
+      <div class="cta-btns">
+        <a href="index.html" class="btn-dark">✦ S'abonner maintenant</a>
+        <a href="#cours" class="btn-white">Parcourir les cours →</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer><div class="container"><div class="footer-content"><div><div class="footer-logo">ProForm</div><p class="footer-desc">La plateforme de référence pour les artistes plasticiens et créateurs visuels.</p><div class="footer-social"><a href="#" class="social-btn">f</a><a href="#" class="social-btn">in</a><a href="#" class="social-btn">📷</a><a href="#" class="social-btn">▶</a></div></div><div class="footer-col"><h4>Disciplines</h4><ul><li><a href="scene.html">Scène & Théâtre</a></li><li><a href="cinema.html">Cinéma</a></li><li><a href="art-plastique.html">Art Plastique</a></li><li><a href="musique.html">Musique</a></li></ul></div><div class="footer-col"><h4>Services</h4><ul><li><a href="promotion.html">Promotion artiste</a></li><li><a href="formation.html">Catalogue</a></li><li><a href="#">Certification</a></li></ul></div><div class="footer-col"><h4>Légal</h4><ul><li><a href="#">CGU</a></li><li><a href="#">Confidentialité</a></li></ul></div></div><div class="footer-bottom"><span>© 2026 ProForm.COM — Tous droits réservés</span><span>Conçu avec passion pour les arts 🎨</span></div></div></footer>
+
+<div class="toast" id="toast"><span id="toastIcon"></span><span id="toastMsg"></span></div>
+
+<script src="store.js"></script>
+<script src="app.js"></script>
+<script>
+  function switchTab(btn,cat){document.querySelectorAll('.course-tab').forEach(t=>t.classList.remove('active'));btn.classList.add('active');loadCategoryVideos(cat);}
+  const ART_CATNAMES={tous:'Toutes les vidéos',peinture:'Peinture',sculpture:'Sculpture',numerique:'Art Numérique',dessin:'Dessin'};
+  async function loadCategoryVideos(cat){
+    const sec=document.getElementById('videosSection'),grid=document.getElementById('videosGrid');
+    const title=document.getElementById('videosSectionTitle'),count=document.getElementById('videosSectionCount');
+    if(!sec||!grid)return;
+    grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:24px;color:var(--gray)">⏳ Chargement…</div>';
+    sec.style.display='block';
+    try{
+      const url=cat==='tous'?`${API}/api/videos?discipline=art-plastique&limit=20`:`${API}/api/videos?discipline=art-plastique&categorie=${cat}&limit=20`;
+      const r=await fetch(url);if(!r.ok)throw new Error();
+      const videos=(await r.json()).videos||[];
+      if(title)title.innerHTML=`🎨 Vidéos — ${ART_CATNAMES[cat]||cat}`;
+      if(count)count.textContent=videos.length?`${videos.length} vidéo${videos.length>1?'s':''}`:'';;
+      if(!videos.length){grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--gray)"><div style="font-size:3rem;margin-bottom:12px">🎨</div><div>Aucune vidéo — l'admin peut en uploader via Admin → Vidéos</div></div>`;return;}
+      grid.innerHTML=videos.map(v=>`<div style="background:var(--dark-card);border:1px solid var(--dark-border);border-radius:12px;overflow:hidden;cursor:pointer;transition:transform .2s" onclick="playVideoArt('${API+v.videoPath}','${(v.titre||'').replace(/'/g,'')}')"><div style="position:relative;height:160px;background:linear-gradient(135deg,#5a1a10,#8a2510);display:flex;align-items:center;justify-content:center">${v.thumbnailPath?`<img src="${API+v.thumbnailPath}" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0">`:'<span style="font-size:3rem;position:relative">🎨</span>'}<div style="position:absolute;inset:0;background:rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center"><div style="width:50px;height:50px;border-radius:50%;background:rgba(201,168,76,.9);display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 80 80" fill="none" width="28"><polygon points="28,20 60,40 28,60" fill="#000"/></svg></div></div>${v.duree?`<div style="position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,.7);color:#fff;font-size:.7rem;padding:2px 7px;border-radius:4px">${v.duree}</div>`:''}</div><div style="padding:12px"><div style="font-weight:600;font-size:.9rem;margin-bottom:4px">${v.titre||'Vidéo'}</div>${v.formateur?`<div style="font-size:.75rem;color:var(--gold)">👤 ${v.formateur}</div>`:''}</div></div>`).join('');
+    }catch{grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--gray)">Démarrez le backend pour voir les vidéos.</div>';}
+  }
+  function playVideoArt(src,titre){
+    const modal=document.getElementById('videoModal'),player=document.getElementById('videoPlayer'),noSrc=document.getElementById('videoNoSrc'),titleEl=document.getElementById('modalTitle');
+    if(!modal)return;if(titleEl)titleEl.textContent=titre||'Vidéo';
+    if(src&&!src.endsWith('undefined')){player.src=src;player.style.display='block';noSrc.style.display='none';player.load();}
+    else{player.style.display='none';noSrc.style.display='flex';noSrc.innerHTML='<div style="font-size:3rem">🎨</div><p style="color:rgba(255,255,255,.5)">Aucune source.</p>';}
+    modal.classList.add('show');document.body.style.overflow='hidden';
+  }
+  function showModules(card){const panel=document.getElementById('modulesPanel');document.getElementById('panelIcon').textContent=card.dataset.icon||'🎨';document.getElementById('panelTitle').textContent=card.dataset.title;document.getElementById('panelMeta').textContent=card.dataset.meta;const modules=JSON.parse(card.dataset.modules||'[]');document.getElementById('panelModules').innerHTML=modules.map((m,i)=>`<div class="module-item"><div class="module-num">${i+1}</div><span>${m}</span></div>`).join('');panel.classList.add('show');panel.scrollIntoView({behavior:'smooth',block:'start'});}
+  function closePanel(){document.getElementById('modulesPanel').classList.remove('show');}
+  const API='http://localhost:5000';
+  async function openVideoModal(card){
+    document.getElementById('modalTitle').textContent=card.dataset.title||'Cours ProForm';
+    document.getElementById('modalRating').textContent=card.dataset.rating||'⭐ —';
+    document.getElementById('modalDuration').textContent=card.dataset.duration||'🕐 —';
+    document.getElementById('modalLevel').textContent=card.dataset.level||'📊 —';
+    const player=document.getElementById('videoPlayer');
+    const noSrc=document.getElementById('videoNoSrc');
+    player.style.display='none'; noSrc.style.display='flex';
+    noSrc.innerHTML='<div style="font-size:3rem">⏳</div><p style="color:rgba(255,255,255,0.5)">Chargement...</p>';
+    document.getElementById('videoModal').classList.add('show');
+    document.body.style.overflow='hidden';
+    const cat=card.dataset.cat||'';
+    try{
+      const resp=await fetch(`${API}/api/videos?discipline=art-plastique&categorie=${cat}`);
+      const data=await resp.json();
+      if(data.videos&&data.videos.length>0){
+        const vid=data.videos[0];
+        player.src=API+vid.videoPath;
+        player.poster=vid.thumbnailPath?API+vid.thumbnailPath:'';
+        player.style.display='block'; noSrc.style.display='none';
+        if(vid.titre)document.getElementById('modalTitle').textContent=vid.titre;
+        if(vid.duree)document.getElementById('modalDuration').textContent='🕐 '+vid.duree;
+      }else{
+        player.style.display='none'; noSrc.style.display='flex';
+        noSrc.innerHTML=`<div style="font-size:4rem">${card.dataset.icon||'🎨'}</div><p style="color:rgba(255,255,255,0.6);margin:12px 0 4px;font-size:1rem;font-weight:600;">${card.dataset.title||''}</p><p style="color:rgba(255,255,255,0.35);font-size:0.85rem;">L'administrateur n'a pas encore uploadé de vidéo pour ce cours.</p>`;
+      }
+    }catch(e){
+      player.style.display='none'; noSrc.style.display='flex';
+      noSrc.innerHTML=`<div style="font-size:4rem">${card.dataset.icon||'🎨'}</div><p style="color:rgba(255,255,255,0.6);margin:12px 0 4px;font-size:1rem;font-weight:600;">${card.dataset.title||''}</p><p style="color:rgba(255,255,255,0.35);font-size:0.85rem;">Aucune vidéo disponible pour ce cours.</p>`;
+    }
+  }
+  function closeVideoModal(){
+    document.getElementById('videoModal').classList.remove('show');
+    const player=document.getElementById('videoPlayer');
+    player.pause(); player.src='';
+    document.body.style.overflow='';
+  }
+  function handleModalClick(e){if(e.target===document.getElementById('videoModal'))closeVideoModal();}
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')closeVideoModal();});
+  function toggleInstitutes(){const sec=document.getElementById('institutesSection');const btn=document.getElementById('instBtn');if(sec.style.display==='none'){sec.style.display='block';sec.scrollIntoView({behavior:'smooth'});btn.textContent='✕ Masquer les instituts';}else{sec.style.display='none';btn.textContent='🏛️ Voir les instituts partenaires';}}
+  function filterInstitutes(){const q=document.getElementById('instSearch').value.toLowerCase();document.querySelectorAll('.inst-card').forEach(card=>{card.style.display=(card.dataset.name.toLowerCase().includes(q)||card.innerText.toLowerCase().includes(q))?'flex':'none';});}
+  function filterCourses(){const q=document.getElementById('courseSearch').value.toLowerCase();document.querySelectorAll('.course-card').forEach(card=>{card.style.display=card.innerText.toLowerCase().includes(q)?'block':'none';});}
+  document.getElementById('courseSearch').addEventListener('keypress',e=>{if(e.key==='Enter')filterCourses();});
+
+  const SUBCATS_ART={peinture:'🎨 Peinture',sculpture:'🗿 Sculpture',numerique:'💻 Art Numérique',dessin:'✏️ Dessin'};
+  const API_ART='http://localhost:5000';
+
+  async function loadCoursesFromDB(){
+    try{
+      const r=await fetch(`${API_ART}/api/courses?categorie=art-plastique&limit=50`);
+      if(!r.ok)throw new Error();
+      const d=await r.json();const courses=d.courses||[];if(!courses.length)return;
+      const grid=document.getElementById('coursesGrid');
+      grid.insertAdjacentHTML('afterbegin',`<div style="grid-column:1/-1;background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.25);border-radius:10px;padding:10px 18px;font-size:.82rem;color:var(--gold);margin-bottom:4px">✦ ${courses.length} formation${courses.length>1?'s':''} ajoutée${courses.length>1?'s':''} par l'administration</div>`);
+      courses.forEach(c=>{
+        const subTag=SUBCATS_ART[c.sousCategorie]||'🎨 Art Plastique';const note=c.note?.moyenne?`⭐ ${c.note.moyenne}`:'';
+        const div=document.createElement('div');div.className='course-card';div.dataset.cat=c.sousCategorie||'peinture';div.dataset.title=c.titre;div.dataset.rating=note;div.dataset.duration=c.dureeHeures?`🕐 ${c.dureeHeures}h`:'';div.dataset.level=c.niveaux?`📊 ${c.niveaux}`:'';div.dataset.icon='🎨';div.dataset.meta=`${c.dureeHeures||0}h · Certifié ProForm · ${c.niveaux||'Tous niveaux'}`;div.dataset.modules=JSON.stringify(c.modules?.map(m=>m.titre)||[]);
+        div.innerHTML=`<div class="video-thumb" onclick="openVideoModal(this.closest('.course-card'))">${c.image?`<img src="${c.image}" alt="${c.titre}" style="width:100%;height:190px;object-fit:cover" onerror="this.style.display='none'">`:`<div style="background:linear-gradient(135deg,#5a1a10,#8a2510);height:190px;display:flex;align-items:center;justify-content:center;font-size:3.5rem">🎨</div>`}<div class="play-btn"><svg viewBox="0 0 80 80" fill="none"><circle cx="40" cy="40" r="40" fill="rgba(201,168,76,0.9)"/><polygon points="32,24 60,40 32,56" fill="#000"/></svg></div>${c.dureeHeures?`<div class="video-duration">${c.dureeHeures}h de contenu</div>`:''}</div><div class="course-card-body"><span class="course-tag">${subTag}</span><div class="course-title">${c.titre}</div><div class="course-desc">${(c.description||'').substring(0,110)}…</div><div class="course-meta">${note?`<span>${note}</span>`:''}<span>🕐 ${c.dureeHeures||0}h</span></div>${c.formateur?.nom?`<div style="font-size:.75rem;color:var(--gray);margin-top:5px">👤 ${c.formateur.nom}</div>`:''}<button class="btn btn-gold btn-full" style="margin-top:14px" onclick="showModules(this.closest('.course-card'))">OK — Voir le programme →</button></div>`;
+        grid.insertAdjacentElement('afterbegin',div);
+      });
+    }catch(_){}
+  }
+  async function loadInstsFromDB(){
+    try{
+      const r=await fetch(`${API_ART}/api/instituts?discipline=art-plastique`);if(!r.ok)throw new Error();
+      const d=await r.json();const insts=d.instituts||[];if(!insts.length)return;
+      const grid=document.querySelector('.institutes-grid');if(!grid)return;grid.innerHTML='';
+      const colors={gold:'#c9a84c',purple:'#9b59b6',teal:'#1abc9c',blue:'#3498db',red:'#e74c3c',orange:'#e67e22'};
+      insts.forEach(i=>{const clr=colors[i.couleur]||'#c9a84c';grid.insertAdjacentHTML('beforeend',`<div class="inst-card" data-name="${i.nom}" style="border-color:${clr}33"><div style="font-size:2rem;margin-bottom:8px">${i.icone||'🎨'}</div><div style="font-weight:700;font-size:.95rem;margin-bottom:4px">${i.nom}</div>${i.localisation?`<div style="font-size:.75rem;color:var(--gray)">📍 ${i.localisation}</div>`: ''}${i.telephone?`<div style="font-size:.75rem;color:var(--gold)">📞 ${i.telephone}</div>`:''}${i.email?`<div style="font-size:.72rem;color:rgba(255,255,255,.4)">✉️ ${i.email}</div>`:''}${i.specialites?`<div style="font-size:.72rem;color:var(--gray);margin-top:5px">${i.specialites}</div>`:''}<span style="font-size:.65rem;font-weight:700;letter-spacing:1px;background:${clr}22;color:${clr};padding:2px 8px;border-radius:4px;margin-top:8px;display:inline-block">${i.type}</span></div>`);});
+    }catch(_){}
+  }
+
+  let curSlide=0;
+  function goToSlide(n){curSlide=(n+4)%4;document.getElementById('sliderTrack').style.transform=`translateX(-${curSlide*100}%)`;document.querySelectorAll('.slider-dot').forEach((d,i)=>d.classList.toggle('active',i===curSlide));}
+  function slideMove(dir){goToSlide(curSlide+dir);}
+  setInterval(()=>slideMove(1),4000);
+
+  window.addEventListener('DOMContentLoaded',()=>{ loadInstsFromDB(); loadCategoryVideos('tous'); loadCoursesFromDB(); });
+</script>
+</body>
+</html>

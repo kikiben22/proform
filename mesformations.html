@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ProForm — Mes Formations</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .welcome-bar{background:rgba(201,168,76,.1);border-bottom:1px solid rgba(201,168,76,.25);padding:12px 0;text-align:center;font-size:.85rem;color:var(--gold)}
+    .page-hero{padding:90px 0 40px;position:relative}
+    .page-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 20% 50%,rgba(201,168,76,0.08) 0%,transparent 55%)}
+    .hero-inner{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;position:relative}
+    .hero-title{font-family:'Playfair Display',serif;font-size:2.8rem;font-weight:900;line-height:1.15;margin-bottom:16px}
+    .hero-sub{font-size:.95rem;color:var(--gray);line-height:1.8;margin-bottom:28px;max-width:480px}
+    .course-tabs{display:flex;gap:0;background:var(--dark-card);border:1px solid var(--dark-border);border-radius:12px;padding:4px;margin-bottom:36px;overflow-x:auto}
+    .course-tab{flex-shrink:0;padding:10px 22px;border-radius:8px;border:none;background:none;color:var(--gray);font-family:'Inter',sans-serif;font-size:.85rem;font-weight:500;cursor:pointer;transition:all .3s;white-space:nowrap}
+    .course-tab.active{background:var(--gradient);color:#000;font-weight:700}
+    .courses-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-bottom:40px}
+    .video-thumb{position:relative;cursor:pointer;border-radius:12px 12px 0 0;overflow:hidden;aspect-ratio:16/9;background:#111}
+    .video-thumb img{width:100%;height:100%;object-fit:cover;transition:transform .4s}
+    .video-thumb:hover img{transform:scale(1.05)}
+    .play-btn{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.35)}
+    .play-btn svg{width:52px;height:52px}
+    .video-duration{position:absolute;bottom:8px;right:10px;background:rgba(0,0,0,.8);color:#fff;font-size:.7rem;font-weight:700;padding:2px 7px;border-radius:4px}
+    .modules-panel{background:var(--dark-card);border:1px solid var(--gold-dark);border-radius:16px;padding:28px;margin-bottom:24px;display:none}
+    .modules-panel.show{display:block}
+    .modules-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:16px 0}
+    .module-item{display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(255,255,255,.03);border:1px solid var(--dark-border);border-radius:8px;font-size:.82rem}
+    .module-num{width:22px;height:22px;border-radius:5px;background:var(--gradient);color:#000;font-size:.68rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .hero-slider{border-radius:20px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.6)}
+    #videosSection{display:none!important}
+    .not-logged{display:none;flex-direction:column;align-items:center;justify-content:center;padding:100px 20px;text-align:center;gap:16px}
+    .not-logged h2{font-family:'Playfair Display',serif;font-size:2rem}
+    @media(max-width:1024px){.courses-grid{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:768px){.hero-inner{grid-template-columns:1fr}.hero-slider{display:none}.courses-grid{grid-template-columns:1fr}.hero-title{font-size:2rem}.modules-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+
+<div class="welcome-bar" id="welcomeBar" style="display:none">
+  <span id="discIcon"></span> Bienvenue <strong id="welcomeName"></strong> — Vos formations <span id="discLabel"></span>
+  <a href="connexion.html" onclick="logout()" style="color:rgba(255,255,255,.5);margin-left:20px;font-size:.75rem;text-decoration:none">Déconnexion</a>
+</div>
+
+<nav class="navbar">
+  <a href="index.html" class="nav-logo"><svg width="26" height="26" viewBox="0 0 26 26" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0"><polygon points="13,1.5 23.1,7.5 23.1,18.5 13,24.5 2.9,18.5 2.9,7.5" fill="rgba(201,168,76,0.12)" stroke="#C9A84C" stroke-width="1.5"/><text x="13" y="17.5" text-anchor="middle" font-size="9.5" font-weight="900" fill="#C9A84C" font-family="Georgia,serif">PF</text></svg> PRO<span>FORM</span></a>
+  <ul class="nav-menu">
+    <li><button>Explorer <span class="arrow">▾</span></button><div class="dropdown"><a href="scene.html"><span class="icon">🎭</span> Scène & Théâtre</a><a href="cinema.html"><span class="icon">🎬</span> Cinéma</a><a href="art-plastique.html"><span class="icon">🎨</span> Art Plastique</a><a href="musique.html"><span class="icon">🎵</span> Musique</a></div></li>
+    <li><button>Menu <span class="arrow">▾</span></button><div class="dropdown"><a href="promotion.html"><span class="icon">⭐</span> Promotion</a><a href="formation.html"><span class="icon">📚</span> Catalogue</a><a href="actualites.html"><span class="icon">📰</span> Actualités</a></div></li>
+    <li id="navAccount" style="display:none"><button class="btn btn-gold" style="padding:8px 18px;font-size:.8rem;">Mon compte <span class="arrow">▾</span></button><div class="dropdown" style="right:0;left:auto;min-width:200px;"><a href="mesformations.html"><span class="icon">📚</span> Mes formations</a><a href="#" onclick="logout()"><span class="icon">🚪</span> Déconnexion</a></div></li>
+    <li id="navLogin" style="display:none"><a href="connexion.html" class="btn btn-gold" style="padding:8px 18px;font-size:.8rem;">Se connecter</a></li>
+  </ul>
+</nav>
+
+<!-- Non connecté -->
+<div class="not-logged" id="notLogged">
+  <div style="font-size:4rem">🔒</div>
+  <h2>Accès réservé</h2>
+  <p style="color:var(--gray);max-width:380px">Connectez-vous pour accéder à vos programmes de formation personnalisés selon votre discipline artistique.</p>
+  <a href="connexion.html" class="btn btn-gold btn-lg" style="margin-top:8px">Se connecter →</a>
+</div>
+
+<!-- Contenu formation -->
+<div id="formationContent" style="display:none">
+  <div class="page-wrapper">
+    <section class="page-hero">
+      <div class="container">
+        <div class="hero-inner">
+          <div>
+            <div class="section-badge" id="heroBadge"></div>
+            <h1 class="hero-title" id="heroTitle">Vos <span class="text-gold">programmes</span><br>de formation</h1>
+            <p class="hero-sub" id="heroSub"></p>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;">
+              <a href="#cours" class="btn btn-gold btn-lg">📚 Voir mes cours</a>
+              <a href="#" id="explorerLink" class="btn btn-outline btn-lg">🎬 Explorer les vidéos</a>
+            </div>
+          </div>
+          <div class="hero-slider">
+            <div class="slider-container">
+              <div class="slider-track" id="sliderTrack"></div>
+              <div class="slider-nav"><button class="slider-btn" onclick="slideMove(-1)">&#8592;</button><button class="slider-btn" onclick="slideMove(1)">&#8594;</button></div>
+            </div>
+            <div class="slider-dots" id="sliderDots"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="container">
+      <div class="search-bar" style="margin-bottom:36px"><input type="text" id="courseSearch" placeholder="Rechercher un cours…" /><button class="search-btn" onclick="filterCourses()">🔍</button></div>
+
+      <div class="course-tabs" id="cours" id="tabsBar"></div>
+
+      <div id="videosSection"></div>
+
+      <div class="modules-panel" id="modulesPanel">
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px">
+          <div style="width:48px;height:48px;border-radius:12px;background:var(--gradient);display:flex;align-items:center;justify-content:center;font-size:1.6rem" id="panelIcon"></div>
+          <div><div style="font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700" id="panelTitle"></div><div style="font-size:.78rem;color:var(--gold)" id="panelMeta"></div></div>
+          <button onclick="closePanel()" style="margin-left:auto;background:rgba(255,255,255,.07);border:none;color:#fff;padding:6px 14px;border-radius:6px;cursor:pointer;font-size:.8rem">✕ Fermer</button>
+        </div>
+        <div class="modules-grid" id="panelModules"></div>
+        <div style="margin-top:8px"><a id="panelExplorerLink" href="#" class="btn btn-gold">🎬 Accéder aux vidéos →</a></div>
+      </div>
+
+      <div class="courses-grid" id="coursesGrid"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><span id="toastIcon"></span><span id="toastMsg"></span></div>
+<script src="store.js"></script>
+<script>
+const API = 'http://localhost:5000';
+
+/* ── Config par discipline ─────────────────────────────────── */
+const DISC_CONFIG = {
+  scene: {
+    icon:'🎭', label:'Scène & Théâtre',
+    badge:'🎭 Mes Formations — Scène & Théâtre',
+    sub:'Consultez vos formations en arts de la scène, parcourez les modules et suivez votre progression.',
+    explorer:'scene.html',
+    sliderSlides:[
+      {img:'https://images.unsplash.com/photo-1507924538820-ede94a04019d?w=600&h=400&fit=crop',cat:'Performance',title:'Art de la présence scénique'},
+      {img:'https://images.unsplash.com/photo-1548438294-1ad5d5f4f063?w=600&h=400&fit=crop',cat:'Dramaturgie',title:'Écriture de pièces de théâtre'},
+      {img:'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=600&h=400&fit=crop',cat:'Scénographie',title:"Conception d'espaces scéniques"},
+      {img:'https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?w=600&h=400&fit=crop',cat:'Spectacle vivant',title:'Mise en scène professionnelle'},
+    ],
+    tabs:[{val:'tous',lbl:'Tous les cours'},{val:'performance',lbl:'🎭 Performance'},{val:'ecriture',lbl:'📜 Écriture'},{val:'scenographie',lbl:'🏛️ Scénographie'},{val:'mise-en-scene',lbl:'🎬 Mise en Scène'}],
+    courses:[
+      {cat:'performance',icon:'🎭',title:'Cours de Performance Scénique',desc:"Maîtrisez l'art de la présence sur scène à travers des exercices pratiques intensifs.",meta:'40h · Certifié ProForm · Avancé',rating:'⭐ 4.9 (234)',dur:'40h',img:'https://images.unsplash.com/photo-1507924538820-ede94a04019d?w=600&h=340&fit=crop',bg:'linear-gradient(135deg,#2d1b69,#4a2080)',modules:['Introduction à la présence scénique','Maîtrise du corps et du souffle','Expression émotionnelle authentique','Improvisation et spontanéité','Monologue et dialogue','Performance finale devant public']},
+      {cat:'ecriture',icon:'📜',title:"Cours d'Écriture Dramatique",desc:'Construisez des histoires puissantes et des dialogues percutants.',meta:'35h · Certifié ProForm · Intermédiaire',rating:'⭐ 4.8 (178)',dur:'35h',img:'https://images.unsplash.com/photo-1455390582262-044cdead277a?w=600&h=340&fit=crop',bg:'linear-gradient(135deg,#1a0a2e,#2d1b69)',modules:['Fondements de l\'écriture théâtrale','Structure dramatique et conflits','Construction des personnages','Dialogues naturels et rythmés','Monter une pièce courte','Atelier collaboratif']},
+      {cat:'scenographie',icon:'🏛️',title:'Cours de Scénographie',desc:'Concevez des espaces scéniques uniques — lumières, décors, sons.',meta:'45h · Certifié ProForm · Avancé',rating:'⭐ 4.9 (156)',dur:'45h',img:'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=600&h=340&fit=crop',bg:'linear-gradient(135deg,#0a1a1a,#1a4a4a)',modules:['Histoire de la scénographie','Conception d\'espaces','Lumières et sons','Costumes et accessoires','Logiciel de design','Projet complet']},
+      {cat:'mise-en-scene',icon:'🎬',title:'Mise en Scène Professionnelle',desc:"Direction d'acteurs, gestion de l'espace et coordination complète.",meta:'50h · Certifié ProForm · Expert',rating:'⭐ 4.7 (201)',dur:'50h',img:'https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?w=600&h=340&fit=crop',bg:'linear-gradient(135deg,#1a1a0a,#4a4a10)',modules:['Vision artistique','Direction d\'acteurs','Gestion du plateau','Rapports producteurs','Répétitions','Première']},
+      {cat:'performance',icon:'⚡',title:'Improvisation Théâtrale',desc:'Développez votre spontanéité et créativité scénique.',meta:'25h · Certifié ProForm · Tous niveaux',rating:'⭐ 4.8 (143)',dur:'25h',img:'https://images.unsplash.com/photo-1549576490-b0b4831ef60a?w=600&h=340&fit=crop',bg:'linear-gradient(135deg,#2a0a2a,#4a1a4a)',modules:['Règles de l\'improvisation','Jeux de confiance','Scènes spontanées','Improvisation en groupe','Gestion du vide','Spectacle live']},
+      {cat:'ecriture',icon:'✍️',title:'Dramaturgie Contemporaine',desc:'Explorez les formes théâtrales modernes.',meta:'30h · Certifié ProForm · Intermédiaire',rating:'⭐ 4.6 (98)',dur:'30h',img:'https://images.unsplash.com/photo-1473621038790-b778b4750efe?w=600&h=340&fit=crop',bg:'linear-gradient(135deg,#0a0a2a,#1a1a6a)',modules:['Théâtre postdramatique','Formes hybrides','Écriture fragmentée','Texte et corps','Collaborations','Création d\'une pièce']},
+    ]
+  },
+  cinema: {
+    icon:'🎬', label:'Cinéma',
+    badge:'🎬 Mes Formations — Cinéma',
+    sub:'Consultez vos formations en cinéma et audiovisuel, parcourez les modules et suivez votre progression.',
+    explorer:'cinema.html',
+    sliderSlides:[
+      {img:'https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=600&h=400&fit=crop',cat:'Réalisation',title:"L'art de raconter en images"},
+      {img:'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=600&h=400&fit=crop',cat:'Montage',title:'Rythme et narration visuelle'},
+      {img:'https://images.unsplash.com/photo-1499364615650-ec38552f4f34?w=600&h=400&fit=crop',cat:'Scénario',title:'Écrire pour le grand écran'},
+      {img:'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=600&h=400&fit=crop',cat:'Photographie',title:'Direction de la photographie'},
+    ],
+    tabs:[{val:'tous',lbl:'Tous les cours'},{val:'realisation',lbl:'🎬 Réalisation'},{val:'scenario',lbl:'📝 Scénario'},{val:'montage',lbl:'✂️ Montage'},{val:'photo',lbl:'📷 Photo'}],
+    courses:[
+      {cat:'realisation',icon:'🎬',title:'Réalisation Cinématographique',desc:"Maîtrisez toutes les étapes de la création d'un film.",meta:'50h · Certifié ProForm · Avancé',rating:'⭐ 4.9 (312)',dur:'50h',img:'https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=600&h=340&fit=crop',bg:'linear-gradient(135deg,#1a0a1a,#3a1050)',modules:['Vision artistique','Storyboard','Direction d\'acteurs','Gestion du plateau','Tournage','Post-production']},
+      {cat:'scenario',icon:'📝',title:'Écriture de Scénario',desc:'Développez des histoires captivantes pour le grand écran.',meta:'35h · Certifié ProForm · Intermédiaire',rating:'⭐ 4.8 (198)',dur:'35h',img:'https://images.unsplash.com/photo-1499364615650-ec38552f4f34?w=600&h=340&fit=crop',bg:'linear-gradient(135deg,#1a1a0a,#4a3a10)',modules:['Structure en trois actes','Personnages','Dialogues','Conflit','Format','Pitch']},
+      {cat:'montage',icon:'✂️',title:'Montage Vidéo Professionnel',desc:'Créez des films dynamiques grâce aux techniques de montage avancées.',meta:'40h · Certifié ProForm · Intermédiaire',rating:'⭐ 4.7 (245)',dur:'40h',img:'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=600&h=340&fit=crop',bg:'linear-gradient(135deg,#0a1a3a,#1a3070)',modules:['Bases du montage','Rythme','Son et musique','Étalonnage','Effets visuels','Export']},
+      {cat:'photo',icon:'📷',title:'Direction de la Photographie',desc:'Maîtrisez la lumière et le cadrage pour des images saisissantes.',meta:'45h · Certifié ProForm · Avancé',rating:'⭐ 4.9 (167)',dur:'45h',img:'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=600&h=340&fit=crop',bg:'linear-gradient(135deg,#0a2a0a,#1a5a1a)',modules:['Lumière naturelle','Cadrage','Mouvements caméra','Optiques','Tournage','Direction photo']},
+      {cat:'realisation',icon:'🎥',title:'Documentaire et Reportage',desc:'Capturez la réalité et construisez des récits documentaires percutants.',meta:'30h · Certifié ProForm · Tous niveaux',rating:'⭐ 4.8 (122)',dur:'30h',img:'https://images.unsplash.com/photo-1551817958-11e40277a4f2?w=600&h=340&fit=crop',bg:'linear-gradient(135deg,#2a1a0a,#5a3010)',modules:['Genres documentaire','Pré-production','Interview terrain','Son direct','Montage narratif','Diffusion']},
+      {cat:'scenario',icon:'🏆',title:'Développement de Projet Cinéma',desc:"De l'idée au financement — montez un projet professionnel.",meta:'25h · Certifié ProForm · Expert',rating:'⭐ 4.6 (87)',dur:'25h',img:'https://images.unsplash.com/photo-1512070679279-8988d32161be?w=600&h=340&fit=crop',bg:'linear-gradient(135deg,#0a0a2a,#1a1a6a)',modules:['Dossier développement','Financement','Fonds d\'aide','Distributeurs','Festival','Long-métrage']},
+    ]
+  },
+  'art-plastique': {
+    icon:'🎨', label:'Art Plastique',
+    badge:'🎨 Mes Formations — Art Plastique',
+    sub:'Consultez vos formations en arts plastiques et visuels, parcourez les modules et suivez votre progression.',
+    explorer:'art-plastique.html',
+    sliderSlides:[
+      {img:'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=600&h=400&fit=crop',cat:'Peinture',title:'Maîtrise des techniques picturales'},
+      {img:'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&h=400&fit=crop',cat:'Sculpture',title:'Créer la troisième dimension'},
+      {img:'https://images.unsplash.com/photo-1617791160505-6f00504e3519?w=600&h=400&fit=crop',cat:'Art Numérique',title:"L'art à l'ère digitale"},
+      {img:'https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=600&h=400&fit=crop',cat:'Dessin',title:'La base de tous les arts visuels'},
+    ],
+    tabs:[{val:'tous',lbl:'Tous les cours'},{val:'peinture',lbl:'🎨 Peinture'},{val:'sculpture',lbl:'🗿 Sculpture'},{val:'numerique',lbl:'💻 Art Numérique'},{val:'dessin',lbl:'✏️ Dessin'}],
+    courses:[
+      {cat:'peinture',icon:'🎨',title:"Peinture à l'Huile Maîtrisée",desc:'Maîtrisez les techniques traditionnelles et contemporaines.',meta:'45h · Certifié ProForm · Intermédiaire',rating:'⭐ 4.9 (289)',dur:'45h',img:'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=600&h=340&fit=crop',bg:'linear-gradient(135deg,#3a0a0a,#7a1a1a)',modules:['Histoire de la peinture','Préparation support','Techniques d\'ébauche','Glacis','Portrait','Paysage']},
+      {cat:'sculpture',icon:'🗿',title:'Sculpture et Modelage',desc:'Donnez forme à vos idées en explorant le modelage et la taille.',meta:'40h · Certifié ProForm · Tous niveaux',rating:'⭐ 4.8 (156)',dur:'40h',img:'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&h=340&fit=crop',bg:'linear-gradient(135deg,#0a2a3a,#1a5a7a)',modules:['Matériaux et outils','Modelage argile','Taille directe','Assemblage','Moulage','Finitions']},
+      {cat:'numerique',icon:'💻',title:'Art Numérique et Illustration',desc:'Créez des œuvres visuelles uniques avec les outils numériques.',meta:'35h · Certifié ProForm · Intermédiaire',rating:'⭐ 4.7 (203)',dur:'35h',img:'https://images.unsplash.com/photo-1617791160505-6f00504e3519?w=600&h=340&fit=crop',bg:'linear-gradient(135deg,#0a1a3a,#1a4a7a)',modules:['Outils numériques','Dessin vectoriel','Illustration','Design graphique','Animation 2D','Portfolio']},
+      {cat:'dessin',icon:'✏️',title:'Dessin Académique et Créatif',desc:'Du débutant au confirmé — maîtrisez les fondamentaux du dessin.',meta:'30h · Certifié ProForm · Débutant',rating:'⭐ 4.8 (334)',dur:'30h',img:'https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=600&h=340&fit=crop',bg:'linear-gradient(135deg,#1a1a1a,#3a3a3a)',modules:['Observation','Perspective','Ombres et lumières','Anatomie','Figure humaine','Style personnel']},
+      {cat:'peinture',icon:'💧',title:'Aquarelle et Arts du Papier',desc:'Explorez la légèreté et la transparence de l\'aquarelle.',meta:'25h · Certifié ProForm · Tous niveaux',rating:'⭐ 4.9 (178)',dur:'25h',img:'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=600&h=340&fit=crop',bg:'linear-gradient(135deg,#0a2a4a,#1a5a9a)',modules:['Matériaux aquarelle','Lavis','Paysages','Fleurs','Portraits','Carnet de voyage']},
+      {cat:'numerique',icon:'🤖',title:'NFT et Art Génératif',desc:'Créez et monétisez votre art numérique à l\'ère des NFT.',meta:'20h · Certifié ProForm · Avancé',rating:'⭐ 4.6 (89)',dur:'20h',img:'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=600&h=340&fit=crop',bg:'linear-gradient(135deg,#0a0a3a,#2a0a5a)',modules:['NFT et blockchain','Plateformes','Art génératif','IA créative','Monétisation','Marketing']},
+    ]
+  },
+  musique: {
+    icon:'🎵', label:'Musique',
+    badge:'🎵 Mes Formations — Musique',
+    sub:'Consultez vos formations en musique, parcourez les modules et suivez votre progression musicale.',
+    explorer:'musique.html',
+    sliderSlides:[
+      {img:'https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=600&h=400&fit=crop',cat:'Guitare',title:'De la classique au jazz'},
+      {img:'https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?w=600&h=400&fit=crop',cat:'Piano',title:"L'instrument roi de la musique"},
+      {img:'https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=600&h=400&fit=crop',cat:'Chant',title:'La voix comme instrument'},
+      {img:'https://images.unsplash.com/photo-1571330735066-03aaa9429d89?w=600&h=400&fit=crop',cat:'Production',title:'Produire de la musique professionnelle'},
+    ],
+    tabs:[{val:'tous',lbl:'Tous les cours'},{val:'guitare',lbl:'🎸 Guitare'},{val:'piano',lbl:'🎹 Piano'},{val:'chant',lbl:'🎤 Chant'},{val:'production',lbl:'🎛️ Production'}],
+    courses:[
+      {cat:'guitare',icon:'🎸',title:'Guitare — De Débutant à Confirmé',desc:'Maîtrisez la guitare de zéro jusqu\'au niveau confirmé.',meta:'40h · Certifié ProForm · Tous niveaux',rating:'⭐ 4.9 (421)',dur:'40h',img:'https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=600&h=340&fit=crop',bg:'linear-gradient(135deg,#2a0a0a,#5a1a1a)',modules:['Anatomie guitare','Accords ouverts','Rythmes','Fingerpicking','Soliste','Jouer en groupe']},
+      {cat:'piano',icon:'🎹',title:'Piano Classique et Moderne',desc:'Du solfège aux pièces avancées — une formation complète.',meta:'50h · Certifié ProForm · Débutant',rating:'⭐ 4.8 (298)',dur:'50h',img:'https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?w=600&h=340&fit=crop',bg:'linear-gradient(135deg,#0a1a3a,#1a3a7a)',modules:['Lecture partition','Technique','Gammes','Répertoire classique','Jazz','Improvisation']},
+      {cat:'chant',icon:'🎤',title:'Technique Vocale Professionnelle',desc:'Développez votre voix et votre style pour des performances inoubliables.',meta:'35h · Certifié ProForm · Tous niveaux',rating:'⭐ 4.9 (187)',dur:'35h',img:'https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=600&h=340&fit=crop',bg:'linear-gradient(135deg,#1a0a2a,#4a1a5a)',modules:['Anatomie vocale','Placement','Solfège','Styles vocaux','Scène','Studio']},
+      {cat:'production',icon:'🎛️',title:'Production Musicale en Home Studio',desc:'Créez, enregistrez et produisez vos propres titres.',meta:'45h · Certifié ProForm · Intermédiaire',rating:'⭐ 4.7 (234)',dur:'45h',img:'https://images.unsplash.com/photo-1571330735066-03aaa9429d89?w=600&h=340&fit=crop',bg:'linear-gradient(135deg,#0a2a0a,#1a5a1a)',modules:['Équipement studio','DAW','Enregistrement','Mixing','Mastering','Distribution']},
+      {cat:'guitare',icon:'🎼',title:'Théorie Musicale et Harmonie',desc:'Comprenez le langage de la musique — théorie et composition.',meta:'25h · Certifié ProForm · Intermédiaire',rating:'⭐ 4.8 (145)',dur:'25h',img:'https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=600&h=340&fit=crop',bg:'linear-gradient(135deg,#1a1a2a,#3a3a6a)',modules:['Intervalles','Accords','Progressions','Modes','Contrepoint','Analyse']},
+      {cat:'production',icon:'🎧',title:'DJing et Musique Électronique',desc:'Maîtrisez les platines et créez des sets électroniques percutants.',meta:'30h · Certifié ProForm · Débutant',rating:'⭐ 4.7 (178)',dur:'30h',img:'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=600&h=340&fit=crop',bg:'linear-gradient(135deg,#1a0a1a,#3a1a5a)',modules:['Bases DJing','Matériel','Beatmatching','Sets','Beatmaking','Live']},
+    ]
+  }
+};
+
+/* ── Slider ─────────────────────────────────────────────────── */
+let curSlide=0,slideCount=0;
+function goToSlide(n){curSlide=(n+slideCount)%slideCount;document.getElementById('sliderTrack').style.transform=`translateX(-${curSlide*100}%)`;document.querySelectorAll('.slider-dot').forEach((d,i)=>d.classList.toggle('active',i===curSlide));}
+function slideMove(dir){goToSlide(curSlide+dir);}
+
+function buildSlider(slides){
+  slideCount=slides.length;
+  document.getElementById('sliderTrack').innerHTML=slides.map(s=>`
+    <div class="slider-slide">
+      <img src="${s.img}" alt="${s.cat}" onerror="this.style.display='none'" />
+      <div class="slider-overlay">
+        <div style="font-size:.75rem;text-transform:uppercase;letter-spacing:2px;color:var(--gold);margin-bottom:6px">${s.cat}</div>
+        <div style="font-family:Playfair Display,serif;font-size:1.3rem;font-weight:700">${s.title}</div>
+      </div>
+    </div>`).join('');
+  document.getElementById('sliderDots').innerHTML=slides.map((_,i)=>`<div class="slider-dot${i===0?' active':''}" onclick="goToSlide(${i})"></div>`).join('');
+  setInterval(()=>slideMove(1),4000);
+}
+
+/* ── Tabs ───────────────────────────────────────────────────── */
+function buildTabs(tabs){
+  document.getElementById('cours').innerHTML=tabs.map((t,i)=>`<button class="course-tab${i===0?' active':''}" onclick="switchTab(this,'${t.val}')">${t.lbl}</button>`).join('');
+}
+function switchTab(btn,cat){
+  document.querySelectorAll('.course-tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('#coursesGrid .course-card').forEach(c=>{
+    c.style.display=(cat==='tous'||c.dataset.cat===cat)?'':'none';
+  });
+}
+
+/* ── Cours ──────────────────────────────────────────────────── */
+function buildCourses(courses){
+  const grid=document.getElementById('coursesGrid');
+  grid.innerHTML=courses.map(c=>`
+    <div class="course-card" data-cat="${c.cat}" data-title="${c.title}" data-meta="${c.meta}" data-icon="${c.icon}" data-modules='${JSON.stringify(c.modules)}'>
+      <div class="video-thumb" onclick="showModules(this.closest('.course-card'))">
+        <img src="${c.img}" alt="${c.title}" onerror="this.style.display='none'" />
+        <div style="position:absolute;inset:0;${c.img?'':'background:'+c.bg+';display:flex;align-items:center;justify-content:center;font-size:3rem'}"></div>
+        <div class="play-btn"><svg viewBox="0 0 80 80" fill="none"><circle cx="40" cy="40" r="40" fill="rgba(201,168,76,0.9)"/><polygon points="32,24 60,40 32,56" fill="#000"/></svg></div>
+        <div class="video-duration">${c.dur}</div>
+      </div>
+      <div class="course-card-body">
+        <span class="course-tag">${c.icon} ${c.cat.charAt(0).toUpperCase()+c.cat.slice(1)}</span>
+        <div class="course-title">${c.title}</div>
+        <div class="course-desc">${c.desc}</div>
+        <div class="course-meta"><span>${c.rating}</span><span>🕐 ${c.dur}</span></div>
+        <button class="btn btn-gold btn-full" style="margin-top:14px" onclick="showModules(this.closest('.course-card'))">📋 Voir le programme →</button>
+      </div>
+    </div>`).join('');
+}
+
+/* ── Modules Panel ──────────────────────────────────────────── */
+function showModules(card){
+  const panel=document.getElementById('modulesPanel');
+  document.getElementById('panelIcon').textContent=card.dataset.icon;
+  document.getElementById('panelTitle').textContent=card.dataset.title;
+  document.getElementById('panelMeta').textContent=card.dataset.meta;
+  const mods=JSON.parse(card.dataset.modules||'[]');
+  document.getElementById('panelModules').innerHTML=mods.map((m,i)=>`<div class="module-item"><div class="module-num">${i+1}</div><span>${m}</span></div>`).join('');
+  panel.classList.add('show');
+  panel.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function closePanel(){document.getElementById('modulesPanel').classList.remove('show');}
+
+/* ── Search ─────────────────────────────────────────────────── */
+function filterCourses(){const q=document.getElementById('courseSearch').value.toLowerCase();document.querySelectorAll('.course-card').forEach(c=>{c.style.display=c.innerText.toLowerCase().includes(q)?'':'none';});}
+
+/* ── Cours depuis DB ────────────────────────────────────────── */
+async function loadCoursesFromDB(disc){
+  try{
+    const r=await fetch(`${API}/api/courses?categorie=${disc}&limit=50`);
+    if(!r.ok)return;
+    const d=await r.json();
+    const courses=d.courses||[];
+    if(!courses.length)return;
+    const grid=document.getElementById('coursesGrid');
+    grid.insertAdjacentHTML('afterbegin',`<div style="grid-column:1/-1;background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.25);border-radius:10px;padding:10px 18px;font-size:.82rem;color:var(--gold);margin-bottom:4px">✦ ${courses.length} formation${courses.length>1?'s':''} ajoutée${courses.length>1?'s':''} par l'administration</div>`);
+    const cfg=DISC_CONFIG[disc];
+    courses.forEach(c=>{
+      const div=document.createElement('div');
+      div.className='course-card';div.dataset.cat=c.sousCategorie||'';div.dataset.title=c.titre;
+      div.dataset.meta=`${c.dureeHeures||0}h · Certifié ProForm`;div.dataset.icon=cfg.icon;
+      div.dataset.modules=JSON.stringify(c.modules?.map(m=>m.titre)||[]);
+      div.innerHTML=`<div class="video-thumb" onclick="showModules(this.closest('.course-card'))">
+        ${c.image?`<img src="${c.image}" alt="${c.titre}" style="width:100%;height:190px;object-fit:cover">`:`<div style="height:190px;display:flex;align-items:center;justify-content:center;font-size:3rem;background:#111">${cfg.icon}</div>`}
+        <div class="play-btn"><svg viewBox="0 0 80 80" fill="none"><circle cx="40" cy="40" r="40" fill="rgba(201,168,76,0.9)"/><polygon points="32,24 60,40 32,56" fill="#000"/></svg></div>
+        ${c.dureeHeures?`<div class="video-duration">${c.dureeHeures}h</div>`:''}
+      </div>
+      <div class="course-card-body">
+        <span class="course-tag">${cfg.icon} ${c.sousCategorie||disc}</span>
+        <div class="course-title">${c.titre}</div>
+        <div class="course-desc">${(c.description||'').substring(0,110)}…</div>
+        <div class="course-meta">${c.note?.moyenne?`<span>⭐ ${c.note.moyenne}</span>`:''}<span>🕐 ${c.dureeHeures||0}h</span></div>
+        <button class="btn btn-gold btn-full" style="margin-top:14px" onclick="showModules(this.closest('.course-card'))">📋 Voir le programme →</button>
+      </div>`;
+      grid.insertAdjacentElement('afterbegin',div);
+    });
+  }catch(_){}
+}
+
+/* ── Logout ─────────────────────────────────────────────────── */
+function logout(){
+  localStorage.removeItem('proform_token');
+  localStorage.removeItem('proform_user');
+}
+
+/* ── INIT ───────────────────────────────────────────────────── */
+window.addEventListener('DOMContentLoaded',()=>{
+  const user=JSON.parse(localStorage.getItem('proform_user')||'{}');
+  const token=localStorage.getItem('proform_token');
+
+  if(!token||!user.discipline){
+    document.getElementById('notLogged').style.display='flex';
+    document.getElementById('navLogin').style.display='';
+    return;
+  }
+
+  const disc=(user.discipline||'').toLowerCase().trim();
+  const cfg=DISC_CONFIG[disc];
+
+  if(!cfg){
+    /* Discipline inconnue → page de connexion */
+    document.getElementById('notLogged').style.display='flex';
+    document.getElementById('navLogin').style.display='';
+    return;
+  }
+
+  /* Barre de bienvenue */
+  document.getElementById('welcomeBar').style.display='block';
+  document.getElementById('discIcon').textContent=cfg.icon+' ';
+  document.getElementById('welcomeName').textContent=(user.prenom||'')+(user.nom?' '+user.nom:'');
+  document.getElementById('discLabel').textContent=cfg.label;
+
+  /* Navbar */
+  document.getElementById('navAccount').style.display='';
+
+  /* Hero */
+  document.getElementById('heroBadge').textContent=cfg.badge;
+  document.getElementById('heroSub').textContent=cfg.sub;
+  document.getElementById('explorerLink').href=cfg.explorer;
+  document.getElementById('panelExplorerLink').href=cfg.explorer;
+
+  /* Build */
+  buildSlider(cfg.sliderSlides);
+  buildTabs(cfg.tabs);
+  buildCourses(cfg.courses);
+
+  /* DB enrichment */
+  loadCoursesFromDB(disc);
+
+  /* Search listener */
+  document.getElementById('courseSearch').addEventListener('keypress',e=>{if(e.key==='Enter')filterCourses();});
+
+  document.getElementById('formationContent').style.display='block';
+});
+</script>
+</body>
+</html>

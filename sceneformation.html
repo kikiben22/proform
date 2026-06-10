@@ -1,0 +1,233 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ProForm — Mes Formations Scène & Théâtre</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .page-hero{padding:100px 0 50px;position:relative;overflow:hidden}
+    .page-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 20% 50%,rgba(100,50,200,0.12) 0%,transparent 50%),radial-gradient(ellipse at 80% 30%,rgba(201,168,76,0.1) 0%,transparent 50%)}
+    .hero-inner{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;position:relative}
+    .hero-title{font-family:'Playfair Display',serif;font-size:3rem;font-weight:900;line-height:1.15;margin-bottom:20px}
+    .hero-sub{font-size:1rem;color:var(--gray);line-height:1.8;margin-bottom:30px;max-width:500px}
+    .course-tabs{display:flex;gap:0;background:var(--dark-card);border:1px solid var(--dark-border);border-radius:12px;padding:4px;margin-bottom:40px;overflow-x:auto}
+    .course-tab{flex-shrink:0;padding:10px 22px;border-radius:8px;border:none;background:none;color:var(--gray);font-family:'Inter',sans-serif;font-size:0.85rem;font-weight:500;cursor:pointer;transition:all 0.3s ease;white-space:nowrap}
+    .course-tab.active{background:var(--gradient);color:#000;font-weight:700}
+    .courses-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-bottom:40px}
+    .video-thumb{position:relative;cursor:pointer;border-radius:12px 12px 0 0;overflow:hidden;aspect-ratio:16/9;background:#111}
+    .video-thumb img{width:100%;height:100%;object-fit:cover;transition:transform 0.4s ease;display:block}
+    .video-thumb:hover img{transform:scale(1.05)}
+    .play-btn{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.35);transition:background 0.3s ease}
+    .play-btn svg{width:56px;height:56px;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.6));transition:transform 0.3s ease}
+    .video-thumb:hover .play-btn{background:rgba(0,0,0,0.5)}
+    .video-thumb:hover .play-btn svg{transform:scale(1.1)}
+    .video-duration{position:absolute;bottom:8px;right:10px;background:rgba(0,0,0,0.8);color:#fff;font-size:0.7rem;font-weight:700;padding:2px 7px;border-radius:4px}
+    .modules-panel{background:var(--dark-card);border:1px solid var(--gold-dark);border-radius:16px;padding:28px;margin-bottom:24px;display:none;animation:fadeInUp 0.4s ease}
+    .modules-panel.show{display:block}
+    .modules-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:16px 0}
+    .module-item{display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(255,255,255,0.03);border:1px solid var(--dark-border);border-radius:8px;font-size:0.82rem}
+    .module-num{width:22px;height:22px;border-radius:5px;background:var(--gradient);color:#000;font-size:0.68rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .institutes-section{background:var(--dark);border:1px solid var(--dark-border);border-radius:20px;padding:40px;margin:60px 0}
+    .institutes-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:30px;flex-wrap:wrap;gap:16px}
+    .institutes-header h3{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:700}
+    .institutes-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+    .inst-card{background:var(--black);border:1px solid var(--dark-border);border-radius:12px;padding:16px 18px;display:flex;align-items:center;gap:13px;transition:all 0.3s ease;cursor:pointer}
+    .inst-card:hover{border-color:var(--gold-dark);background:rgba(201,168,76,0.03);transform:translateY(-2px)}
+    .inst-logo{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0}
+    .inst-logo.purple{background:linear-gradient(135deg,#2d1b69,#4a2080)}.inst-logo.gold{background:linear-gradient(135deg,#7a5c1a,#c9a84c)}.inst-logo.teal{background:linear-gradient(135deg,#0a3a3a,#1a6a6a)}.inst-logo.red{background:linear-gradient(135deg,#5a1a10,#8a2510)}.inst-logo.blue{background:linear-gradient(135deg,#0a2050,#1a4a9a)}.inst-logo.green{background:linear-gradient(135deg,#0a3a0a,#1a6a1a)}.inst-logo.orange{background:linear-gradient(135deg,#5a2a00,#c9640a)}.inst-logo.pink{background:linear-gradient(135deg,#4a0a3a,#8a1a6a)}
+    .inst-info strong{display:block;font-size:0.82rem;font-weight:600;margin-bottom:2px}
+    .inst-info span{font-size:0.72rem;color:var(--gray)}
+    .inst-badge{margin-left:auto;background:rgba(201,168,76,0.1);color:var(--gold);font-size:0.6rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 7px;border-radius:4px;flex-shrink:0}
+    .hero-slider{border-radius:20px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,0.6)}
+    #videosSection{display:none!important}
+    .welcome-bar{background:rgba(201,168,76,.1);border-bottom:1px solid rgba(201,168,76,.25);padding:12px 0;text-align:center;font-size:.85rem;color:var(--gold)}
+    @keyframes slideUp{from{transform:translateY(40px);opacity:0}to{transform:translateY(0);opacity:1}}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+    @media(max-width:1024px){.courses-grid{grid-template-columns:repeat(2,1fr)}.institutes-grid{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:768px){.hero-inner{grid-template-columns:1fr}.hero-slider{display:none}.courses-grid{grid-template-columns:1fr}.hero-title{font-size:2.2rem}.modules-grid{grid-template-columns:1fr}.institutes-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+
+<div class="welcome-bar">
+  🎭 Bienvenue <strong id="welcomeName">—</strong> — Voici vos formations Scène &amp; Théâtre
+  <a href="index.html" style="color:rgba(255,255,255,.5);margin-left:20px;font-size:.75rem;text-decoration:none">Déconnexion</a>
+</div>
+
+<nav class="navbar">
+  <a href="index.html" class="nav-logo"><svg width="26" height="26" viewBox="0 0 26 26" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0"><polygon points="13,1.5 23.1,7.5 23.1,18.5 13,24.5 2.9,18.5 2.9,7.5" fill="rgba(201,168,76,0.12)" stroke="#C9A84C" stroke-width="1.5"/><text x="13" y="17.5" text-anchor="middle" font-size="9.5" font-weight="900" fill="#C9A84C" font-family="Georgia,serif">PF</text></svg> PRO<span>FORM</span></a>
+  <ul class="nav-menu">
+    <li><button>Explorer <span class="arrow">▾</span></button><div class="dropdown"><a href="scene.html"><span class="icon">🎭</span> Scène & Théâtre</a><a href="cinema.html"><span class="icon">🎬</span> Cinéma</a><a href="art-plastique.html"><span class="icon">🎨</span> Art Plastique</a><a href="musique.html"><span class="icon">🎵</span> Musique</a></div></li>
+    <li><button>Menu <span class="arrow">▾</span></button><div class="dropdown"><a href="promotion.html"><span class="icon">⭐</span> Promotion</a><div style="padding:6px 18px 4px;font-size:.68rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--gold);font-weight:700;border-top:1px solid var(--dark-border);margin-top:4px">Formations</div><a href="sceneformation.html"><span class="icon">🎭</span> Scène &amp; Théâtre</a><a href="cinemaformation.html"><span class="icon">🎬</span> Cinéma</a><a href="art-plastiqueformation.html"><span class="icon">🎨</span> Art Plastique</a><a href="musiqueformation.html"><span class="icon">🎵</span> Musique</a><a href="actualites.html" style="border-top:1px solid var(--dark-border);margin-top:4px;padding-top:10px"><span class="icon">📰</span> Actualités</a><a href="index.html#siteFooter"><span class="icon">📞</span> Contact</a></div></li>
+    <li><button class="btn btn-gold" style="padding:8px 18px;font-size:0.8rem;">Mon compte <span class="arrow">▾</span></button><div class="dropdown" style="right:0;left:auto;min-width:200px;"><a href="scene.html"><span class="icon">🎭</span> Explorer les vidéos</a><a href="index.html"><span class="icon">🚪</span> Déconnexion</a></div></li>
+  </ul>
+</nav>
+
+<div class="page-wrapper">
+  <section class="page-hero">
+    <div class="container">
+      <div class="hero-inner">
+        <div>
+          <div class="section-badge">🎭 Mes Formations — Scène & Théâtre</div>
+          <h1 class="hero-title">Vos <span class="text-gold">programmes</span><br>de formation</h1>
+          <p class="hero-sub">Consultez le détail de vos formations inscrites, parcourez les modules et suivez votre progression en arts de la scène.</p>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;">
+            <a href="#cours" class="btn btn-gold btn-lg">🎭 Voir mes cours</a>
+            <a href="scene.html" class="btn btn-outline btn-lg">🎬 Explorer les vidéos</a>
+          </div>
+        </div>
+        <div class="hero-slider">
+          <div class="slider-container" id="heroSlider">
+            <div class="slider-track" id="sliderTrack">
+              <div class="slider-slide"><img src="https://images.unsplash.com/photo-1507924538820-ede94a04019d?w=600&h=400&fit=crop" alt="Théâtre" onerror="this.parentNode.style.background='linear-gradient(135deg,#2d1b69,#4a2080)';this.parentNode.style.height='340px';this.parentNode.innerHTML='<div style=\'display:flex;align-items:center;justify-content:center;height:100%;font-size:8rem;\'>🎭</div>'" /><div class="slider-overlay"><div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:2px;color:var(--gold);margin-bottom:6px;">Performance</div><div style="font-family:Playfair Display,serif;font-size:1.3rem;font-weight:700;">Art de la présence scénique</div></div></div>
+              <div class="slider-slide"><img src="https://images.unsplash.com/photo-1548438294-1ad5d5f4f063?w=600&h=400&fit=crop" alt="Dramaturgie" onerror="this.parentNode.style.background='linear-gradient(135deg,#1a0a2e,#4a2080)';this.parentNode.style.height='340px';this.parentNode.innerHTML='<div style=\'display:flex;align-items:center;justify-content:center;height:100%;font-size:8rem;\'>📜</div>'" /><div class="slider-overlay"><div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:2px;color:var(--gold);margin-bottom:6px;">Dramaturgie</div><div style="font-family:Playfair Display,serif;font-size:1.3rem;font-weight:700;">Écriture de pièces de théâtre</div></div></div>
+              <div class="slider-slide"><img src="https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=600&h=400&fit=crop" alt="Scénographie" onerror="this.parentNode.style.background='linear-gradient(135deg,#0a1a1a,#1a4a4a)';this.parentNode.style.height='340px';this.parentNode.innerHTML='<div style=\'display:flex;align-items:center;justify-content:center;height:100%;font-size:8rem;\'>🏛️</div>'" /><div class="slider-overlay"><div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:2px;color:var(--gold);margin-bottom:6px;">Scénographie</div><div style="font-family:Playfair Display,serif;font-size:1.3rem;font-weight:700;">Conception d'espaces scéniques</div></div></div>
+              <div class="slider-slide"><img src="https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?w=600&h=400&fit=crop" alt="Spectacle" onerror="this.parentNode.style.background='linear-gradient(135deg,#1a1a0a,#4a4a10)';this.parentNode.style.height='340px';this.parentNode.innerHTML='<div style=\'display:flex;align-items:center;justify-content:center;height:100%;font-size:8rem;\'>🌟</div>'" /><div class="slider-overlay"><div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:2px;color:var(--gold);margin-bottom:6px;">Spectacle vivant</div><div style="font-family:Playfair Display,serif;font-size:1.3rem;font-weight:700;">Mise en scène professionnelle</div></div></div>
+            </div>
+            <div class="slider-nav"><button class="slider-btn" onclick="slideMove(-1)">&#8592;</button><button class="slider-btn" onclick="slideMove(1)">&#8594;</button></div>
+          </div>
+          <div class="slider-dots" id="sliderDots"><div class="slider-dot active" onclick="goToSlide(0)"></div><div class="slider-dot" onclick="goToSlide(1)"></div><div class="slider-dot" onclick="goToSlide(2)"></div><div class="slider-dot" onclick="goToSlide(3)"></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="container">
+    <div class="search-bar" style="margin-bottom:40px;"><input type="text" id="courseSearch" placeholder="Rechercher un cours, une compétence, un formateur..." /><button class="search-btn" onclick="filterCourses()">🔍</button></div>
+
+    <div class="course-tabs" id="cours">
+      <button class="course-tab active" onclick="switchTab(this,'tous')">Tous les cours</button>
+      <button class="course-tab" onclick="switchTab(this,'performance')">🎭 Performance</button>
+      <button class="course-tab" onclick="switchTab(this,'ecriture')">📜 Écriture Dramatique</button>
+      <button class="course-tab" onclick="switchTab(this,'scenographie')">🏛️ Scénographie</button>
+      <button class="course-tab" onclick="switchTab(this,'mise-en-scene')">🎬 Mise en Scène</button>
+    </div>
+
+    <div id="videosSection"></div>
+
+    <div class="modules-panel" id="modulesPanel">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;">
+        <div style="width:48px;height:48px;border-radius:12px;background:var(--gradient);display:flex;align-items:center;justify-content:center;font-size:1.6rem;" id="panelIcon">🎭</div>
+        <div><div style="font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;" id="panelTitle"></div><div style="font-size:0.78rem;color:var(--gold);" id="panelMeta"></div></div>
+        <button onclick="closePanel()" style="margin-left:auto;background:rgba(255,255,255,0.07);border:none;color:#fff;padding:6px 14px;border-radius:6px;cursor:pointer;font-size:0.8rem;">✕ Fermer</button>
+      </div>
+      <div class="modules-grid" id="panelModules"></div>
+      <div style="margin-top:8px;"><a href="scene.html" class="btn btn-gold">🎬 Accéder aux vidéos →</a></div>
+    </div>
+
+    <div class="courses-grid" id="coursesGrid">
+      <div class="course-card" data-cat="performance" data-title="Cours de Performance Scénique" data-meta="40h · Certifié ProForm · Avancé" data-rating="⭐ 4.9 (234 avis)" data-duration="🕐 40h" data-level="📊 Avancé" data-icon="🎭" data-modules='["Introduction à la présence scénique","Maîtrise du corps et du souffle","Expression émotionnelle authentique","Improvisation et spontanéité","Monologue et dialogue","Performance finale devant public"]'>
+        <div class="video-thumb" onclick="showModules(this.closest('.course-card'))"><img src="https://images.unsplash.com/photo-1507924538820-ede94a04019d?w=600&h=340&fit=crop" alt="Performance" onerror="this.parentNode.style.background='linear-gradient(135deg,#2d1b69,#4a2080)';this.parentNode.style.minHeight='190px';this.src=''" /><div class="play-btn"><svg viewBox="0 0 80 80" fill="none"><circle cx="40" cy="40" r="40" fill="rgba(201,168,76,0.9)"/><polygon points="32,24 60,40 32,56" fill="#000"/></svg></div><div class="video-duration">40h de contenu</div></div>
+        <div class="course-card-body"><span class="course-tag">🎭 Performance</span><div class="course-title">Cours de Performance Scénique</div><div class="course-desc">Maîtrisez l'art de la présence sur scène à travers des exercices pratiques intensifs.</div><div class="course-meta"><span>⭐ 4.9 (234 avis)</span><span>🕐 40h</span></div><button class="btn btn-gold btn-full" style="margin-top:14px;" onclick="showModules(this.closest('.course-card'))">📋 Voir le programme →</button></div>
+      </div>
+      <div class="course-card" data-cat="ecriture" data-title="Cours d'Écriture Dramatique" data-meta="35h · Certifié ProForm · Intermédiaire" data-rating="⭐ 4.8 (178 avis)" data-duration="🕐 35h" data-level="📊 Intermédiaire" data-icon="📜" data-modules='["Fondements de l'écriture théâtrale","Structure dramatique et conflits","Construction des personnages","Dialogues naturels et rythmés","Monter une pièce courte","Atelier d'écriture collaborative"]'>
+        <div class="video-thumb" onclick="showModules(this.closest('.course-card'))"><img src="https://images.unsplash.com/photo-1455390582262-044cdead277a?w=600&h=340&fit=crop" alt="Écriture" onerror="this.parentNode.style.background='linear-gradient(135deg,#1a0a2e,#2d1b69)';this.parentNode.style.minHeight='190px';this.src=''" /><div class="play-btn"><svg viewBox="0 0 80 80" fill="none"><circle cx="40" cy="40" r="40" fill="rgba(201,168,76,0.9)"/><polygon points="32,24 60,40 32,56" fill="#000"/></svg></div><div class="video-duration">35h de contenu</div></div>
+        <div class="course-card-body"><span class="course-tag">📜 Écriture</span><div class="course-title">Cours d'Écriture Dramatique</div><div class="course-desc">Construisez des histoires puissantes, des personnages mémorables et des dialogues percutants.</div><div class="course-meta"><span>⭐ 4.8 (178 avis)</span><span>🕐 35h</span></div><button class="btn btn-gold btn-full" style="margin-top:14px;" onclick="showModules(this.closest('.course-card'))">📋 Voir le programme →</button></div>
+      </div>
+      <div class="course-card" data-cat="scenographie" data-title="Cours de Scénographie" data-meta="45h · Certifié ProForm · Avancé" data-rating="⭐ 4.9 (156 avis)" data-duration="🕐 45h" data-level="📊 Avancé" data-icon="🏛️" data-modules='["Histoire de la scénographie","Conception d'espaces scéniques","Lumières et sons au service du spectacle","Costumes et accessoires de scène","Logiciel de design scénographique","Projet scénographique complet"]'>
+        <div class="video-thumb" onclick="showModules(this.closest('.course-card'))"><img src="https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=600&h=340&fit=crop" alt="Scénographie" onerror="this.parentNode.style.background='linear-gradient(135deg,#0a1a1a,#1a4a4a)';this.parentNode.style.minHeight='190px';this.src=''" /><div class="play-btn"><svg viewBox="0 0 80 80" fill="none"><circle cx="40" cy="40" r="40" fill="rgba(201,168,76,0.9)"/><polygon points="32,24 60,40 32,56" fill="#000"/></svg></div><div class="video-duration">45h de contenu</div></div>
+        <div class="course-card-body"><span class="course-tag">🏛️ Scénographie</span><div class="course-title">Cours de Scénographie</div><div class="course-desc">Concevez des espaces scéniques uniques — lumières, décors, sons — pour des spectacles inoubliables.</div><div class="course-meta"><span>⭐ 4.9 (156 avis)</span><span>🕐 45h</span></div><button class="btn btn-gold btn-full" style="margin-top:14px;" onclick="showModules(this.closest('.course-card'))">📋 Voir le programme →</button></div>
+      </div>
+      <div class="course-card" data-cat="mise-en-scene" data-title="Mise en Scène Professionnelle" data-meta="50h · Certifié ProForm · Expert" data-rating="⭐ 4.7 (201 avis)" data-duration="🕐 50h" data-level="📊 Expert" data-icon="🎬" data-modules='["Vision artistique du metteur en scène","Direction d'acteurs professionnels","Gestion du plateau et des équipes","Rapports avec les producteurs","Répétitions et ajustements","Première et gestion du trac"]'>
+        <div class="video-thumb" onclick="showModules(this.closest('.course-card'))"><img src="https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?w=600&h=340&fit=crop" alt="Mise en scène" onerror="this.parentNode.style.background='linear-gradient(135deg,#1a1a0a,#4a4a10)';this.parentNode.style.minHeight='190px';this.src=''" /><div class="play-btn"><svg viewBox="0 0 80 80" fill="none"><circle cx="40" cy="40" r="40" fill="rgba(201,168,76,0.9)"/><polygon points="32,24 60,40 32,56" fill="#000"/></svg></div><div class="video-duration">50h de contenu</div></div>
+        <div class="course-card-body"><span class="course-tag">🎬 Mise en Scène</span><div class="course-title">Mise en Scène Professionnelle</div><div class="course-desc">Direction d'acteurs, gestion de l'espace scénique et coordination complète d'un spectacle.</div><div class="course-meta"><span>⭐ 4.7 (201 avis)</span><span>🕐 50h</span></div><button class="btn btn-gold btn-full" style="margin-top:14px;" onclick="showModules(this.closest('.course-card'))">📋 Voir le programme →</button></div>
+      </div>
+      <div class="course-card" data-cat="performance" data-title="Improvisation Théâtrale" data-meta="25h · Certifié ProForm · Tous niveaux" data-rating="⭐ 4.8 (143 avis)" data-duration="🕐 25h" data-level="📊 Tous niveaux" data-icon="⚡" data-modules='["Les règles de l'improvisation","Jeux de confiance et d'écoute","Création de scènes spontanées","Improvisation en groupe","Gestion du vide scénique","Spectacle d'improvisation live"]'>
+        <div class="video-thumb" onclick="showModules(this.closest('.course-card'))"><img src="https://images.unsplash.com/photo-1549576490-b0b4831ef60a?w=600&h=340&fit=crop" alt="Improvisation" onerror="this.parentNode.style.background='linear-gradient(135deg,#2a0a2a,#4a1a4a)';this.parentNode.style.minHeight='190px';this.src=''" /><div class="play-btn"><svg viewBox="0 0 80 80" fill="none"><circle cx="40" cy="40" r="40" fill="rgba(201,168,76,0.9)"/><polygon points="32,24 60,40 32,56" fill="#000"/></svg></div><div class="video-duration">25h de contenu</div></div>
+        <div class="course-card-body"><span class="course-tag">⚡ Improvisation</span><div class="course-title">Improvisation Théâtrale</div><div class="course-desc">Développez votre spontanéité, créativité et instinct scénique à travers l'improvisation.</div><div class="course-meta"><span>⭐ 4.8 (143 avis)</span><span>🕐 25h</span></div><button class="btn btn-gold btn-full" style="margin-top:14px;" onclick="showModules(this.closest('.course-card'))">📋 Voir le programme →</button></div>
+      </div>
+      <div class="course-card" data-cat="ecriture" data-title="Dramaturgie Contemporaine" data-meta="30h · Certifié ProForm · Intermédiaire" data-rating="⭐ 4.6 (98 avis)" data-duration="🕐 30h" data-level="📊 Intermédiaire" data-icon="✍️" data-modules='["Théâtre postdramatique","Formes hybrides et installations","Écriture fragmentée","Texte et corps","Collaborations interdisciplinaires","Création d'une pièce courte contemporaine"]'>
+        <div class="video-thumb" onclick="showModules(this.closest('.course-card'))"><img src="https://images.unsplash.com/photo-1473621038790-b778b4750efe?w=600&h=340&fit=crop" alt="Dramaturgie" onerror="this.parentNode.style.background='linear-gradient(135deg,#0a0a2a,#1a1a6a)';this.parentNode.style.minHeight='190px';this.src=''" /><div class="play-btn"><svg viewBox="0 0 80 80" fill="none"><circle cx="40" cy="40" r="40" fill="rgba(201,168,76,0.9)"/><polygon points="32,24 60,40 32,56" fill="#000"/></svg></div><div class="video-duration">30h de contenu</div></div>
+        <div class="course-card-body"><span class="course-tag">✍️ Dramaturgie</span><div class="course-title">Dramaturgie Contemporaine</div><div class="course-desc">Explorez les formes théâtrales modernes et écrivez des textes pour la scène contemporaine.</div><div class="course-meta"><span>⭐ 4.6 (98 avis)</span><span>🕐 30h</span></div><button class="btn btn-gold btn-full" style="margin-top:14px;" onclick="showModules(this.closest('.course-card'))">📋 Voir le programme →</button></div>
+      </div>
+    </div>
+
+    <div style="text-align:center;margin-bottom:60px;"><button class="btn btn-outline btn-lg" onclick="toggleInstitutes()" id="instBtn">🏛️ Voir les instituts partenaires</button></div>
+    <div class="institutes-section" id="institutesSection" style="display:none;">
+      <div class="institutes-header"><div><div class="section-badge">🏛️ Nos Partenaires</div><h3>Instituts <span class="text-gold">partenaires</span></h3></div><div class="search-bar" style="max-width:280px;margin:0;"><input type="text" placeholder="Chercher un institut..." id="instSearch" oninput="filterInstitutes()" /><button class="search-btn">🔍</button></div></div>
+      <div class="institutes-grid" id="institutesGrid">
+        <div class="inst-card" data-name="Institut National des Arts Dramatiques Alger"><div class="inst-logo purple">🎭</div><div class="inst-info"><strong>Institut National des Arts Dramatiques</strong><span>Alger · Théâtre, Performance, Mise en scène</span></div><span class="inst-badge">Officiel</span></div>
+        <div class="inst-card" data-name="Conservatoire National Art Dramatique Oran"><div class="inst-logo gold">🏛️</div><div class="inst-info"><strong>Conservatoire National d'Art Dramatique</strong><span>Oran · Dramaturgie, Scénographie</span></div><span class="inst-badge">Certifié</span></div>
+        <div class="inst-card" data-name="Théâtre National Algérien École Formation"><div class="inst-logo teal">🎪</div><div class="inst-info"><strong>Théâtre National Algérien — École</strong><span>Alger · Centre de formation professionnelle</span></div><span class="inst-badge">Officiel</span></div>
+        <div class="inst-card" data-name="Centre Formation Arts Spectacle Constantine"><div class="inst-logo red">🌟</div><div class="inst-info"><strong>Centre de Formation aux Arts du Spectacle</strong><span>Constantine · Formations intensives</span></div><span class="inst-badge">Partenaire</span></div>
+        <div class="inst-card" data-name="Académie Méditerranéenne Théâtre Annaba"><div class="inst-logo blue">📜</div><div class="inst-info"><strong>Académie Méditerranéenne du Théâtre</strong><span>Annaba · Écriture dramatique, Direction</span></div><span class="inst-badge">Certifié</span></div>
+        <div class="inst-card" data-name="Institut Arts Vivants Paris France International"><div class="inst-logo green">🌍</div><div class="inst-info"><strong>Institut des Arts Vivants — Paris</strong><span>Paris, France · Partenariat international</span></div><span class="inst-badge">International</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer><div class="container"><div class="footer-content"><div><div class="footer-logo">ProForm</div><p class="footer-desc">La plateforme de référence pour les artistes de la scène et du spectacle vivant.</p><div class="footer-social"><a href="#" class="social-btn">f</a><a href="#" class="social-btn">in</a><a href="#" class="social-btn">📷</a><a href="#" class="social-btn">▶</a></div></div><div class="footer-col"><h4>Disciplines</h4><ul><li><a href="scene.html">Scène & Théâtre</a></li><li><a href="cinema.html">Cinéma</a></li><li><a href="art-plastique.html">Art Plastique</a></li><li><a href="musique.html">Musique</a></li></ul></div><div class="footer-col"><h4>Services</h4><ul><li><a href="promotion.html">Promotion artiste</a></li><li><a href="formation.html">Catalogue</a></li><li><a href="#">Certification</a></li></ul></div><div class="footer-col"><h4>Légal</h4><ul><li><a href="#">CGU</a></li><li><a href="#">Confidentialité</a></li></ul></div></div><div class="footer-bottom"><span>© 2026 ProForm.COM — Tous droits réservés</span><span>Conçu avec passion pour les arts 🎭</span></div></div></footer>
+
+<div class="toast" id="toast"><span id="toastIcon"></span><span id="toastMsg"></span></div>
+<script src="store.js"></script><script src="app.js"></script>
+<script>
+  const API = 'http://localhost:5000';
+
+  /* Welcome banner */
+  (function(){
+    const u = JSON.parse(localStorage.getItem('proform_user')||'{}');
+    const el = document.getElementById('welcomeName');
+    if(el) el.textContent = (u.prenom||'') + (u.nom?' '+u.nom:'') || 'Utilisateur';
+  })();
+
+  /* Slider */
+  let curSlide=0;
+  function goToSlide(n){curSlide=(n+4)%4;document.getElementById('sliderTrack').style.transform=`translateX(-${curSlide*100}%)`;document.querySelectorAll('.slider-dot').forEach((d,i)=>d.classList.toggle('active',i===curSlide));}
+  function slideMove(dir){goToSlide(curSlide+dir);}
+  setInterval(()=>slideMove(1),4000);
+
+  /* Tabs — filtre uniquement, pas de vidéos */
+  function switchTab(btn,cat){
+    document.querySelectorAll('.course-tab').forEach(t=>t.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('#coursesGrid .course-card').forEach(c=>{
+      c.style.display=(cat==='tous'||c.dataset.cat===cat)?'':'none';
+    });
+  }
+
+  /* Modules Panel */
+  function showModules(card){
+    const panel=document.getElementById('modulesPanel');
+    document.getElementById('panelIcon').textContent=card.dataset.icon||'🎭';
+    document.getElementById('panelTitle').textContent=card.dataset.title;
+    document.getElementById('panelMeta').textContent=card.dataset.meta;
+    const modules=JSON.parse(card.dataset.modules||'[]');
+    document.getElementById('panelModules').innerHTML=modules.map((m,i)=>`<div class="module-item"><div class="module-num">${i+1}</div><span>${m}</span></div>`).join('');
+    panel.classList.add('show');
+    panel.scrollIntoView({behavior:'smooth',block:'start'});
+  }
+  function closePanel(){document.getElementById('modulesPanel').classList.remove('show');}
+
+  /* Search */
+  function filterCourses(){const q=document.getElementById('courseSearch').value.toLowerCase();document.querySelectorAll('.course-card').forEach(c=>{c.style.display=c.innerText.toLowerCase().includes(q)?'':'none';});}
+  document.getElementById('courseSearch').addEventListener('keypress',e=>{if(e.key==='Enter')filterCourses();});
+
+  /* Institutes */
+  function toggleInstitutes(){const s=document.getElementById('institutesSection'),b=document.getElementById('instBtn');if(s.style.display==='none'){s.style.display='block';s.scrollIntoView({behavior:'smooth'});b.textContent='✕ Masquer les instituts';}else{s.style.display='none';b.textContent='🏛️ Voir les instituts partenaires';}}
+  function filterInstitutes(){const q=document.getElementById('instSearch').value.toLowerCase();document.querySelectorAll('.inst-card').forEach(c=>{c.style.display=(c.dataset.name.toLowerCase().includes(q)||c.innerText.toLowerCase().includes(q))?'flex':'none';});}
+
+  /* Cours depuis DB */
+  const SUBCATS_SCENE={performance:'🎭 Performance',ecriture:'📜 Écriture',scenographie:'🏛️ Scénographie','mise-en-scene':'🎬 Mise en Scène',improvisation:'🎲 Improvisation'};
+  async function loadCoursesFromDB(){
+    try{
+      const r=await fetch(`${API}/api/courses?categorie=scene&limit=50`);
+      if(!r.ok)throw new Error();
+      const d=await r.json();const courses=d.courses||[];if(!courses.length)return;
+      const grid=document.getElementById('coursesGrid');
+      grid.insertAdjacentHTML('afterbegin',`<div style="grid-column:1/-1;background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.25);border-radius:10px;padding:10px 18px;font-size:.82rem;color:var(--gold);margin-bottom:4px">✦ ${courses.length} formation${courses.length>1?'s':''} ajoutée${courses.length>1?'s':''} par l'administration</div>`);
+      courses.forEach(c=>{
+        const subTag=SUBCATS_SCENE[c.sousCategorie]||'🎭 Scène';const note=c.note?.moyenne?`⭐ ${c.note.moyenne}`:'';
+        const div=document.createElement('div');div.className='course-card';div.dataset.cat=c.sousCategorie||'performance';div.dataset.title=c.titre;div.dataset.rating=note;div.dataset.duration=c.dureeHeures?`🕐 ${c.dureeHeures}h`:'';div.dataset.level=c.niveaux?`📊 ${c.niveaux}`:'';div.dataset.icon='🎭';div.dataset.meta=`${c.dureeHeures||0}h · Certifié ProForm · ${c.niveaux||'Tous niveaux'}`;div.dataset.modules=JSON.stringify(c.modules?.map(m=>m.titre)||[]);
+        div.innerHTML=`<div class="video-thumb" onclick="showModules(this.closest('.course-card'))">${c.image?`<img src="${c.image}" alt="${c.titre}" style="width:100%;height:190px;object-fit:cover" onerror="this.style.display='none'">`:`<div style="background:linear-gradient(135deg,#2d1b69,#4a2080);height:190px;display:flex;align-items:center;justify-content:center;font-size:3.5rem">🎭</div>`}<div class="play-btn"><svg viewBox="0 0 80 80" fill="none"><circle cx="40" cy="40" r="40" fill="rgba(201,168,76,0.9)"/><polygon points="32,24 60,40 32,56" fill="#000"/></svg></div>${c.dureeHeures?`<div class="video-duration">${c.dureeHeures}h</div>`:''}</div><div class="course-card-body"><span class="course-tag">${subTag}</span><div class="course-title">${c.titre}</div><div class="course-desc">${(c.description||'').substring(0,110)}…</div><div class="course-meta">${note?`<span>${note}</span>`:''}<span>🕐 ${c.dureeHeures||0}h</span></div>${c.formateur?.nom?`<div style="font-size:.75rem;color:var(--gray);margin-top:5px">👤 ${c.formateur.nom}</div>`:''}<button class="btn btn-gold btn-full" style="margin-top:14px" onclick="showModules(this.closest('.course-card'))">📋 Voir le programme →</button></div>`;
+        grid.insertAdjacentElement('afterbegin',div);
+      });
+    }catch(_){}
+  }
+  async function loadInstsFromDB(){
+    try{const r=await fetch(`${API}/api/instituts?discipline=scene`);if(!r.ok)throw new Error();const d=await r.json();const insts=d.instituts||[];if(!insts.length)return;const grid=document.querySelector('.institutes-grid');if(!grid)return;grid.innerHTML='';const colors={gold:'#c9a84c',purple:'#9b59b6',teal:'#1abc9c',blue:'#3498db',red:'#e74c3c'};insts.forEach(i=>{const clr=colors[i.couleur]||'#c9a84c';grid.insertAdjacentHTML('beforeend',`<div class="inst-card" data-name="${i.nom}" style="border-color:${clr}33"><div style="font-size:2rem;margin-bottom:8px">${i.icone||'🏛️'}</div><div style="font-weight:700;font-size:.95rem;margin-bottom:4px">${i.nom}</div>${i.localisation?`<div style="font-size:.75rem;color:var(--gray)">📍 ${i.localisation}</div>`:''}${i.telephone?`<div style="font-size:.75rem;color:var(--gold)">📞 ${i.telephone}</div>`:''}${i.email?`<div style="font-size:.72rem;color:rgba(255,255,255,.4)">✉️ ${i.email}</div>`:''}${i.specialites?`<div style="font-size:.72rem;color:var(--gray);margin-top:5px">${i.specialites}</div>`:''}<span style="font-size:.65rem;font-weight:700;letter-spacing:1px;background:${clr}22;color:${clr};padding:2px 8px;border-radius:4px;margin-top:8px;display:inline-block">${i.type}</span></div>`);});}catch(_){}
+  }
+  window.addEventListener('DOMContentLoaded',()=>{ loadInstsFromDB(); loadCoursesFromDB(); });
+</script>
+</body>
+</html>
