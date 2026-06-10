@@ -25,7 +25,8 @@
     .admin-wrap.show{display:flex}
     .sidebar{width:230px;background:#0f0f0f;border-right:1px solid var(--dark-border);position:fixed;top:0;left:0;height:100vh;display:flex;flex-direction:column;z-index:100;overflow-x:hidden;overflow-y:auto;scrollbar-width:none;-ms-overflow-style:none;transition:width .25s ease}
     .sidebar::-webkit-scrollbar{display:none}
-    .sb-toggle{position:absolute;top:20px;right:10px;width:26px;height:26px;border-radius:50%;background:#1a1a1a;border:1px solid var(--dark-border);color:var(--gold);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.85rem;z-index:101;transition:transform .25s,background .2s,color .2s}
+    .sb-logo-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+    .sb-toggle{flex-shrink:0;width:26px;height:26px;border-radius:50%;background:#1a1a1a;border:1px solid var(--dark-border);color:var(--gold);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.85rem;transition:transform .25s,background .2s,color .2s}
     .sb-toggle:hover{background:var(--gold);color:#000}
     .sb-hamburger{background:rgba(255,255,255,.06);border:1px solid var(--dark-border);color:var(--gold);width:40px;height:40px;min-width:40px;border-radius:10px;font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s}
     .sb-hamburger:hover{background:rgba(201,168,76,.15)}
@@ -36,8 +37,10 @@
     .admin-wrap.sb-collapsed .sb-user,
     .admin-wrap.sb-collapsed .sb-badge{display:none}
     .admin-wrap.sb-collapsed .sb-item{justify-content:center;padding:14px}
+    .admin-wrap.sb-collapsed .sb-logo-row{justify-content:center}
     .admin-wrap.sb-collapsed .sb-toggle{transform:rotate(180deg)}
     .admin-wrap.sb-collapsed .main{margin-left:64px}
+    .admin-wrap.sb-collapsed .sb-logo{padding-left:8px;padding-right:8px}
     .sb-logo{padding:24px 20px 18px;border-bottom:1px solid var(--dark-border)}
     .sb-logo .lt{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:900}
     .sb-logo .lt span{color:var(--gold)}
@@ -193,9 +196,11 @@
 
   <!-- SIDEBAR -->
   <aside class="sidebar">
-    <button class="sb-toggle" onclick="toggleSidebar()" title="Réduire / Étendre le menu">‹</button>
     <div class="sb-logo">
-      <div class="lt"><svg width="22" height="22" viewBox="0 0 26 26" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;vertical-align:middle"><polygon points="13,1.5 23.1,7.5 23.1,18.5 13,24.5 2.9,18.5 2.9,7.5" fill="rgba(201,168,76,0.12)" stroke="#C9A84C" stroke-width="1.5"/><text x="13" y="17.5" text-anchor="middle" font-size="9.5" font-weight="900" fill="#C9A84C" font-family="Georgia,serif">PF</text></svg> PRO<span>FORM</span></div>
+      <div class="sb-logo-row">
+        <div class="lt"><svg width="22" height="22" viewBox="0 0 26 26" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;vertical-align:middle"><polygon points="13,1.5 23.1,7.5 23.1,18.5 13,24.5 2.9,18.5 2.9,7.5" fill="rgba(201,168,76,0.12)" stroke="#C9A84C" stroke-width="1.5"/><text x="13" y="17.5" text-anchor="middle" font-size="9.5" font-weight="900" fill="#C9A84C" font-family="Georgia,serif">PF</text></svg> PRO<span>FORM</span></div>
+        <button class="sb-toggle" onclick="toggleSidebar()" title="Réduire / Étendre le menu">‹</button>
+      </div>
       <div class="sb-badge">⚙️ Admin</div>
     </div>
     <nav class="sb-nav">
