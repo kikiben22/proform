@@ -26,6 +26,8 @@
     .sidebar{width:230px;background:#0f0f0f;border-right:1px solid var(--dark-border);position:fixed;top:0;left:0;height:100vh;display:flex;flex-direction:column;z-index:100;overflow-y:auto;transition:width .25s ease}
     .sb-toggle{position:absolute;top:20px;right:-13px;width:26px;height:26px;border-radius:50%;background:#1a1a1a;border:1px solid var(--dark-border);color:var(--gold);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.85rem;z-index:101;transition:transform .25s,background .2s,color .2s}
     .sb-toggle:hover{background:var(--gold);color:#000}
+    .sb-hamburger{background:rgba(255,255,255,.06);border:1px solid var(--dark-border);color:var(--gold);width:40px;height:40px;min-width:40px;border-radius:10px;font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s}
+    .sb-hamburger:hover{background:rgba(201,168,76,.15)}
     .admin-wrap.sb-collapsed .sidebar{width:64px}
     .admin-wrap.sb-collapsed .sb-logo .lt,
     .admin-wrap.sb-collapsed .sb-label,
@@ -160,6 +162,8 @@
       .main{margin-left:56px;padding:20px 16px 60px}
       .stats{grid-template-columns:repeat(2,1fr)}
       .form-row{grid-template-columns:1fr}
+      .admin-wrap.sb-collapsed .sidebar{width:0;border-right:none;overflow:hidden}
+      .admin-wrap.sb-collapsed .main{margin-left:0}
     }
   </style>
 </head>
@@ -221,9 +225,12 @@
   <!-- MAIN -->
   <main class="main">
     <div class="topbar">
-      <div>
-        <h1 id="pageTitle">Vue d'ensemble</h1>
-        <div class="topbar-sub" id="pageSub">Bienvenue dans votre espace d'administration</div>
+      <div style="display:flex;align-items:center;gap:14px">
+        <button class="sb-hamburger" onclick="toggleSidebar()" title="Ouvrir / Fermer le menu">☰</button>
+        <div>
+          <h1 id="pageTitle">Vue d'ensemble</h1>
+          <div class="topbar-sub" id="pageSub">Bienvenue dans votre espace d'administration</div>
+        </div>
       </div>
     </div>
 
