@@ -23,17 +23,21 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/uploads/cvs', express.static(path.join(__dirname, 'uploads/cvs')));
 
 /* ======== DATABASE CONNECTION ======== */
+let lastDbError = null;
+
 const connectDB = async () => {
   try {
     const conn = await mongoose.connect(process.env.MONGO_URI, {
       serverSelectionTimeoutMS: 8000,
     });
+    lastDbError = null;
     console.log(`✅ MongoDB Atlas connecté : ${conn.connection.host}`);
   } catch (error) {
+    lastDbError = error.message;
     console.error(`⚠️  MongoDB non disponible : ${error.message}`);
-    console.log(`🔄 Serveur démarré en mode dégradé (sans base de données persistante).`);
-    console.log(`   → Vérifiez que votre IP est whitelistée dans MongoDB Atlas Network Access.`);
-    /* Ne pas quitter — le serveur reste actif pour les routes JWT */
+    console.log(`🔄 Nouvelle tentative de connexion dans 10s...`);
+    console.log(`   → Vérifiez MONGO_URI et le whitelist IP (0.0.0.0/0) dans MongoDB Atlas Network Access.`);
+    setTimeout(connectDB, 10000);
   }
 };
 
@@ -67,6 +71,7 @@ app.get('/api/health', (req, res) => {
     platform: 'ProForm.COM',
     version: '1.0.0',
     database: mongoose.connection.readyState === 1 ? 'Connecté' : 'Déconnecté',
+    dbError: mongoose.connection.readyState === 1 ? undefined : lastDbError,
     timestamp: new Date().toISOString()
   });
 });
